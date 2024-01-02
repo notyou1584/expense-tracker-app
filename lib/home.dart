@@ -22,7 +22,7 @@ class _ExpenseTrackerHomePageState extends State<ExpenseTrackerHomePage> {
   List<Expense> expenses = [
     Expense('Food', 'Groceries', 50.0),
     Expense('Utilities', 'Electricity', 30.0),
-    Expense('Entertainment', 'Movie Tickets', 20.0),
+    Expense('Entertainments', 'Movie Tickets', 20.0),
     Expense('Food', 'Dinner', 25.0),
     Expense('Transportation', 'Gas', 40.0),
   ];
