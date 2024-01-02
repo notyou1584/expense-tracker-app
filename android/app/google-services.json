@@ -1,0 +1,68 @@
+{
+  "project_info": {
+    "project_number": "969132553240",
+    "firebase_url": "https://meandyou-ac3ec-default-rtdb.asia-southeast1.firebasedatabase.app",
+    "project_id": "meandyou-ac3ec",
+    "storage_bucket": "meandyou-ac3ec.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:969132553240:android:dd758cec8bacf740637f6d",
+        "android_client_info": {
+          "package_name": "com.example.bb"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCCQQ_4NH5DLuXmjiswio8cP3HwgHA7gQ8"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:969132553240:android:b06e405958aff1c4637f6d",
+        "android_client_info": {
+          "package_name": "com.example.demmo"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCCQQ_4NH5DLuXmjiswio8cP3HwgHA7gQ8"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:969132553240:android:b7471cb66105bd99637f6d",
+        "android_client_info": {
+          "package_name": "com.example.demo222"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCCQQ_4NH5DLuXmjiswio8cP3HwgHA7gQ8"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
