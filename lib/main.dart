@@ -1,3 +1,4 @@
+import 'package:demo222/home%20screens/homepage.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'firebase_options.dart';
@@ -20,6 +21,9 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       theme: AppTheme.theme,
       home: const AuthGate(),
+      routes: {
+        '/home': (_) => ExpenseAnalysisScreen(),
+      },
     );
   }
 }

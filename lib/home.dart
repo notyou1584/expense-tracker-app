@@ -1,5 +1,6 @@
 // ignore_for_file: library_private_types_in_public_api, prefer_const_literals_to_create_immutables
 
+import 'package:demo222/routes.dart';
 import 'package:flutter/material.dart';
 
 class Expense {
@@ -72,7 +73,9 @@ class _ExpenseTrackerHomePageState extends State<ExpenseTrackerHomePage> {
         ],
       ),
       floatingActionButton: FloatingActionButton(
-        onPressed: () {},
+        onPressed: () {
+          Navigator.of(context).pushNamed(Routes.home);
+        },
         tooltip: 'Add Transaction',
         backgroundColor: Colors.green,
         child: const Icon(Icons.add),
