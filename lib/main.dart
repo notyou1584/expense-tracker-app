@@ -4,6 +4,7 @@ import 'package:demo222/utils/theme/app_theme.dart';
 import 'package:demo222/utils/ui/home.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
+import 'package:demo222/utils/ui/SplashScreen.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -20,7 +21,7 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       theme: AppTheme.theme,
-      home: const (),
+      home: SplashScreen(),
       routes: {
         '/auth': (_) => AuthGate(),
         '/home': (_) => ExpenseTrackerHomePage(),
