@@ -1,9 +1,9 @@
-import 'package:demo222/home%20screens/homepage.dart';
+import 'package:demo222/authscreens/auth_gate.dart';
+import 'package:demo222/authscreens/firebase_options.dart';
+import 'package:demo222/utils/theme/app_theme.dart';
+import 'package:demo222/utils/ui/home.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
-import 'firebase_options.dart';
-import 'auth_gate.dart';
-import 'app_theme.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -20,9 +20,10 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       theme: AppTheme.theme,
-      home: const AuthGate(),
+      home: const (),
       routes: {
-        '/home': (_) => ExpenseAnalysisScreen(),
+        '/auth': (_) => AuthGate(),
+        '/home': (_) => ExpenseTrackerHomePage(),
       },
     );
   }
