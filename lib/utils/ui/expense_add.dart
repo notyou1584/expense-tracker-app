@@ -41,14 +41,26 @@ class _ExpenseScreenState extends State<ExpenseScreen>
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Add Expense'), // Updated title here
-        centerTitle: true, // Center the title
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back),
-          onPressed: () {
-            // Navigate back or perform any other action
-          },
-        ),
+        title: const Text('Add Expense'),
+        centerTitle: true,
+        leading: _tabController.index == 0
+            ? null
+            : IconButton(
+                icon: const Icon(Icons.arrow_back),
+                onPressed: () {
+                  // Navigate back or perform any other action
+                },
+              ),
+        actions: _tabController.index == 0
+            ? null
+            : [
+                IconButton(
+                  icon: const Icon(Icons.settings),
+                  onPressed: () {
+                    // Navigate to settings or perform any other action
+                  },
+                ),
+              ],
         bottom: TabBar(
           controller: _tabController,
           indicatorColor: Colors.green,
@@ -66,80 +78,392 @@ class _ExpenseScreenState extends State<ExpenseScreen>
         controller: _tabController,
         children: const [
           ExpenseForm(type: 'Personal'),
-          ExpenseForm(type: 'Group'),
+          GroupExpenseForm(type: 'Group'),
         ],
       ),
     );
   }
 }
 
-class ExpenseForm extends StatelessWidget {
+class ExpenseForm extends StatefulWidget {
   final String type;
 
   const ExpenseForm({Key? key, required this.type}) : super(key: key);
 
   @override
+  // ignore: library_private_types_in_public_api
+  _ExpenseFormState createState() => _ExpenseFormState();
+}
+
+class _ExpenseFormState extends State<ExpenseForm> {
+  String selectedCurrency = 'USD'; // Default currency
+  String selectedCategory = 'Select Category'; // Default category
+
+  @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.all(16.0),
+      padding: const EdgeInsets.all(8.0),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text('Expense Type: $type',
-              style:
-                  const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
-          const SizedBox(height: 16),
-          const TextField(
-            decoration: InputDecoration(
-              labelText: 'Amount',
-            ),
-            keyboardType: TextInputType.number,
-          ),
-          const SizedBox(height: 16),
-          const TextField(
-            decoration: InputDecoration(
-              labelText: 'Description',
-            ),
-          ),
-          const SizedBox(height: 16),
-          TextField(
-            decoration: const InputDecoration(
-              labelText: 'Date',
-            ),
-            onTap: () async {
-              // Handle the picked date
-            },
-          ),
-          const SizedBox(height: 16),
-          const TextField(
-            decoration: InputDecoration(
-              labelText: 'Category',
-              focusedBorder: OutlineInputBorder(
-                borderSide: BorderSide(color: Colors.green),
-              ),
-            ),
-          ),
-          const SizedBox(height: 16),
-          Expanded(
-            child: Center(
-              child: ElevatedButton(
-                onPressed: () {
-                  // Handle form submission
-                },
-                style: ElevatedButton.styleFrom(
-                  backgroundColor:
-                      Colors.green, // Set the button color to green
+          const SizedBox(height: 8),
+          Row(
+            children: [
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const SizedBox(height: 4),
+                    Row(
+                      children: [
+                        const Icon(Icons.attach_money),
+                        DropdownButton<String>(
+                          value: selectedCurrency,
+                          onChanged: (String? newValue) {
+                            setState(() {
+                              selectedCurrency = newValue!;
+                            });
+                          },
+                          items: <String>['USD', 'EUR', 'GBP', 'JPY', 'INR']
+                              .map<DropdownMenuItem<String>>(
+                                (String value) => DropdownMenuItem<String>(
+                                  value: value,
+                                  child: Text(value),
+                                ),
+                              )
+                              .toList(),
+                        ),
+                        const SizedBox(width: 4),
+                        const Expanded(
+                          child: TextField(
+                            decoration: InputDecoration(
+                              labelText: 'Amount',
+                            ),
+                            keyboardType: TextInputType.number,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
                 ),
-                child: const Text(
-                  '+Add Expense',
-                  style: TextStyle(
-                    fontSize: 24, // Set the font size to make it big
-                    color: Colors.black, // Set the font color to black
+              ),
+            ],
+          ),
+          const SizedBox(height: 8),
+          const Row(
+            children: [
+              Icon(Icons.description),
+              Expanded(
+                child: TextField(
+                  decoration: InputDecoration(
+                    labelText: 'Description',
                   ),
                 ),
               ),
+            ],
+          ),
+          const SizedBox(height: 8),
+          Row(
+            children: [
+              const Icon(Icons.date_range),
+              Expanded(
+                child: TextField(
+                  decoration: const InputDecoration(
+                    labelText: 'Date',
+                  ),
+                  onTap: () async {
+                    // Handle the picked date
+                  },
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 8),
+          Row(
+            children: [
+              const Icon(Icons.category),
+              Expanded(
+                child: DropdownButton<String>(
+                  value: selectedCategory,
+                  onChanged: (String? newValue) {
+                    setState(() {
+                      selectedCategory = newValue!;
+                    });
+                  },
+                  items: <String>[
+                    'Select Category',
+                    'Category 1',
+                    'Category 2',
+                    'Category 3',
+                  ]
+                      .map<DropdownMenuItem<String>>(
+                        (String value) => DropdownMenuItem<String>(
+                          value: value,
+                          child: Text(value),
+                        ),
+                      )
+                      .toList(),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 8),
+          Center(
+            child: ElevatedButton(
+              onPressed: () {
+                // Handle form submission
+              },
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.green,
+              ),
+              child: const Text(
+                '+Add Expense',
+                style: TextStyle(
+                  fontSize: 18,
+                  color: Colors.black,
+                ),
+              ),
             ),
           ),
+          const SizedBox(height: 16),
+        ],
+      ),
+    );
+  }
+}
+
+class GroupExpenseForm extends StatefulWidget {
+  final String type;
+
+  const GroupExpenseForm({Key? key, required this.type}) : super(key: key);
+
+  @override
+  // ignore: library_private_types_in_public_api
+  _GroupExpenseFormState createState() => _GroupExpenseFormState();
+}
+
+class _GroupExpenseFormState extends State<GroupExpenseForm> {
+  String paidByText = 'Select Paid By';
+  String selectedSplitAmong = 'Select Split Among';
+  String groupName = '';
+  String selectedCurrency = 'USD';
+  String selectedCategory = 'Select Category'; // Default category
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.all(8.0),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const SizedBox(height: 8),
+          Row(
+            children: [
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const SizedBox(height: 4),
+                    TextField(
+                      decoration: const InputDecoration(
+                        labelText: 'Group Name',
+                      ),
+                      onChanged: (value) {
+                        setState(() {
+                          groupName = value;
+                        });
+                      },
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 8),
+          Row(
+            children: [
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const SizedBox(height: 4),
+                    Row(
+                      children: [
+                        const Icon(Icons.attach_money),
+                        DropdownButton<String>(
+                          value: selectedCurrency,
+                          onChanged: (String? newValue) {
+                            setState(() {
+                              selectedCurrency = newValue!;
+                            });
+                          },
+                          items: <String>['USD', 'EUR', 'GBP', 'JPY', 'INR']
+                              .map<DropdownMenuItem<String>>(
+                                (String value) => DropdownMenuItem<String>(
+                                  value: value,
+                                  child: Text(value),
+                                ),
+                              )
+                              .toList(),
+                        ),
+                        const SizedBox(width: 4),
+                        const Expanded(
+                          child: TextField(
+                            decoration: InputDecoration(
+                              labelText: 'Amount',
+                            ),
+                            keyboardType: TextInputType.number,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 8),
+          const Row(
+            children: [
+              Icon(Icons.description),
+              Expanded(
+                child: TextField(
+                  decoration: InputDecoration(
+                    labelText: 'Description',
+                  ),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 8),
+          Row(
+            children: [
+              const Icon(Icons.date_range),
+              Expanded(
+                child: TextField(
+                  decoration: const InputDecoration(
+                    labelText: 'Date',
+                  ),
+                  onTap: () async {
+                    // Handle the picked date
+                  },
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 8),
+          Row(
+            children: [
+              const Icon(Icons.category),
+              Expanded(
+                child: DropdownButton<String>(
+                  value: selectedCategory,
+                  onChanged: (String? newValue) {
+                    setState(() {
+                      selectedCategory = newValue!;
+                    });
+                  },
+                  items: <String>[
+                    'Select Category',
+                    'Category 1',
+                    'Category 2',
+                    'Category 3',
+                  ]
+                      .map<DropdownMenuItem<String>>(
+                        (String value) => DropdownMenuItem<String>(
+                          value: value,
+                          child: Text(value),
+                        ),
+                      )
+                      .toList(),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 8),
+          Row(
+            children: [
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const SizedBox(height: 4),
+                    DropdownButton<String>(
+                      value: paidByText,
+                      onChanged: (String? newValue) {
+                        setState(() {
+                          paidByText = newValue!;
+                        });
+                      },
+                      items: <String>[
+                        'Select Paid By',
+                        'Person 1',
+                        'Person 2',
+                        'Person 3'
+                      ]
+                          .map<DropdownMenuItem<String>>(
+                            (String value) => DropdownMenuItem<String>(
+                              value: value,
+                              child: Text(value),
+                            ),
+                          )
+                          .toList(),
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(width: 8),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const SizedBox(height: 4),
+                    DropdownButton<String>(
+                      value: selectedSplitAmong,
+                      onChanged: (String? newValue) {
+                        setState(() {
+                          selectedSplitAmong = newValue!;
+                        });
+                      },
+                      items: <String>[
+                        'Select Split Among',
+                        'Person 1',
+                        'Person 2',
+                        'Person 3'
+                      ]
+                          .map<DropdownMenuItem<String>>(
+                            (String value) => DropdownMenuItem<String>(
+                              value: value,
+                              child: Text(value),
+                            ),
+                          )
+                          .toList(),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 8),
+          const SizedBox(height: 8),
+          Center(
+            child: ElevatedButton(
+              onPressed: () {
+                // Handle form submission
+              },
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.green,
+              ),
+              child: const Text(
+                '+Add Expense',
+                style: TextStyle(
+                  fontSize: 18,
+                  color: Colors.black,
+                ),
+              ),
+            ),
+          ),
+          const SizedBox(height: 16),
         ],
       ),
     );
