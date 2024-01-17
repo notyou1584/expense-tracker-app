@@ -56,7 +56,7 @@ class AuthGate extends StatelessWidget {
             },
           );
         }
-        return const ExpenseTrackerHomePage();
+        return ExpenseTrackerHomeScreen();
       },
     );
   }

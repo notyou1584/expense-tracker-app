@@ -1,10 +1,14 @@
+//import 'package:demo222/authscreens/auth_gate.dart';
 import 'package:demo222/authscreens/auth_gate.dart';
 import 'package:demo222/authscreens/firebase_options.dart';
 import 'package:demo222/utils/theme/app_theme.dart';
+import 'package:demo222/utils/ui/expense_add.dart';
+import 'package:demo222/utils/ui/group_screen.dart';
 import 'package:demo222/utils/ui/home.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:demo222/utils/ui/SplashScreen.dart';
+import 'package:demo222/utils/ui/signup.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -24,7 +28,9 @@ class MyApp extends StatelessWidget {
       home: SplashScreen(),
       routes: {
         '/auth': (_) => AuthGate(),
-        '/home': (_) => ExpenseTrackerHomePage(),
+        '/home': (_) => ExpenseTrackerHomeScreen(),
+        '/addexpense': (_) => ExpenseScreen(),
+        '/group': (_) => GroupPage()
       },
     );
   }
