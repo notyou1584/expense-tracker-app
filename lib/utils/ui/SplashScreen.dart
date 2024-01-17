@@ -14,7 +14,7 @@ class _SplashScreenState extends State<SplashScreen> {
 
   _navigateToHome() async {
     await Future.delayed(Duration(seconds: 3), () {});
-    Navigator.pushReplacementNamed(context, '/home');
+    Navigator.pushReplacementNamed(context, '/auth');
   }
 
   @override
@@ -24,7 +24,8 @@ class _SplashScreenState extends State<SplashScreen> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Image.asset('assets/images/Expense-o.jpg',
+            Image(
+              image: AssetImage('Images/Expense-o.jpg'),
               height: 100,
             ),
             SizedBox(height: 20),
