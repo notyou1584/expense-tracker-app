@@ -40,7 +40,7 @@ final appThemeData = {
     fontFamily: GoogleFonts.nunito().fontFamily,
     primaryColor: primaryColor,
     scaffoldBackgroundColor: pageBackgroundColor,
-    shadowColor: primaryColor.withOpacity(0.25),
+    shadowColor: primaryColor.withOpacity(1),
     textTheme: GoogleFonts.nunitoTextTheme(),
     tabBarTheme: TabBarTheme(
       labelColor: backgroundColor,

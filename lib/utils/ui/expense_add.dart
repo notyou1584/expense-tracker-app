@@ -1,4 +1,11 @@
+
+
+import 'package:datetime_picker_formfield_new/datetime_picker_formfield.dart';
+import 'package:demo222/utils/ui/expensw/expense_model.dart';
 import 'package:flutter/material.dart';
+
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:intl/intl.dart';
 
 class ExpenseScreen extends StatefulWidget {
   const ExpenseScreen({Key? key}) : super(key: key);
@@ -66,7 +73,7 @@ class _ExpenseScreenState extends State<ExpenseScreen>
   }
 }
 
-class ExpenseForm extends StatefulWidget {
+/*class ExpenseForm extends StatefulWidget {
   final String type;
 
   const ExpenseForm({Key? key, required this.type}) : super(key: key);
@@ -210,6 +217,161 @@ class _ExpenseFormState extends State<ExpenseForm> {
         ],
       ),
     );
+  }
+}
+*/
+
+class ExpenseForm extends StatefulWidget {
+  final String type;
+  const ExpenseForm({Key? key, required this.type}) : super(key: key);
+  @override
+  _ExpenseFormState createState() => _ExpenseFormState();
+}
+
+class _ExpenseFormState extends State<ExpenseForm> {
+  final _formKey = GlobalKey<FormState>();
+  late TextEditingController _amountController;
+  late TextEditingController _currencyController;
+  late TextEditingController _descriptionController;
+  late TextEditingController _categoryController;
+  DateTime _selectedDate = DateTime.now();
+
+  @override
+  void initState() {
+    super.initState();
+    _amountController = TextEditingController();
+    _currencyController = TextEditingController();
+    _descriptionController = TextEditingController();
+    _categoryController = TextEditingController();
+  }
+
+  @override
+  void dispose() {
+    _amountController.dispose();
+    _currencyController.dispose();
+    _descriptionController.dispose();
+    _categoryController.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final format = DateFormat("yyyy-MM-dd");
+    return Scaffold(
+      appBar: AppBar(
+        title: Text('Add Expense'),
+      ),
+      body: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Form(
+          key: _formKey,
+          child: Column(
+            children: [
+              TextFormField(
+                controller: _amountController,
+                keyboardType: TextInputType.number,
+                decoration: InputDecoration(labelText: 'Amount'),
+                validator: (value) {
+                  if (value == null || value.isEmpty) {
+                    return 'Please enter the amount';
+                  }
+                  return null;
+                },
+              ),
+              TextFormField(
+                controller: _currencyController,
+                decoration: InputDecoration(labelText: 'Currency'),
+                validator: (value) {
+                  if (value == null || value.isEmpty) {
+                    return 'Please enter the currency';
+                  }
+                  return null;
+                },
+              ),
+              TextFormField(
+                controller: _descriptionController,
+                decoration: InputDecoration(labelText: 'Description'),
+                validator: (value) {
+                  if (value == null || value.isEmpty) {
+                    return 'Please enter the description';
+                  }
+                  return null;
+                },
+              ),
+              TextFormField(
+                controller: _categoryController,
+                decoration: InputDecoration(labelText: 'Category'),
+                validator: (value) {
+                  if (value == null || value.isEmpty) {
+                    return 'Please enter the category';
+                  }
+                  return null;
+                },
+              ),
+              SizedBox(height: 16),
+              DateTimeField(
+                format: format,
+                initialValue: _selectedDate,
+                onShowPicker: (context, currentValue) async {
+                  final date = await showDatePicker(
+                    context: context,
+                    initialDate: currentValue ?? DateTime.now(),
+                    firstDate: DateTime(2000),
+                    lastDate: DateTime(2101),
+                  );
+                  if (date != null) {
+                    return date;
+                  } else {
+                    return currentValue;
+                  }
+                },
+                decoration: InputDecoration(labelText: 'Date'),
+                onChanged: (date) {
+                  setState(() {
+                    _selectedDate = date ?? DateTime.now();
+                  });
+                },
+              ),
+              SizedBox(height: 16),
+              ElevatedButton(
+                onPressed: () {
+                  if (_formKey.currentState?.validate() ?? false) {
+                    _addExpense();
+                  }
+                },
+                child: Text('Add Expense'),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  void _addExpense() {
+    final amount = double.parse(_amountController.text);
+    final currency = _currencyController.text;
+    final description = _descriptionController.text;
+    final category = _categoryController.text;
+
+    final expense = addexpense(
+      id: '',
+      amount: amount,
+      currency: currency,
+      description: description,
+      category: category,
+      date: _selectedDate,
+    );
+
+    FirebaseFirestore.instance.collection('Expense').add({
+      'amount': expense.amount,
+      'currency': expense.currency,
+      'description': expense.description,
+      'category': expense.category,
+      'date': Timestamp.fromDate(expense.date),
+    });
+
+    Navigator.of(context).pop();
   }
 }
 

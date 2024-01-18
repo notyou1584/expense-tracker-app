@@ -111,7 +111,6 @@ class GroupCard extends StatelessWidget {
             width: 50,
             height: 50,
             decoration: const BoxDecoration(
-              color: Colors.green, // Change group icon color to green
               borderRadius: BorderRadius.all(Radius.circular(25)),
             ),
             child: const Icon(Icons.group, color: Colors.white),
