@@ -433,12 +433,21 @@ class _GroupExpenseFormState extends State<GroupExpenseForm> {
                 // Handle form submission
               },
               style: ElevatedButton.styleFrom(
+<<<<<<< HEAD
                   backgroundColor: Color.fromRGBO(30, 81, 85, 1)),
+=======
+                backgroundColor: Colors.green,
+              ),
+>>>>>>> b8a3cf186009c93d813b79923134567ef6881868
               child: const Text(
                 '+Add Expense',
                 style: TextStyle(
                   fontSize: 18,
+<<<<<<< HEAD
                   color: Colors.white,
+=======
+                  color: Colors.black,
+>>>>>>> b8a3cf186009c93d813b79923134567ef6881868
                 ),
               ),
             ),
