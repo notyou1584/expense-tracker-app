@@ -1,5 +1,6 @@
 import 'package:demo222/home%20screens/analysis.dart';
 import 'package:demo222/routes.dart';
+import 'package:demo222/utils/ui/group_main.dart';
 import 'package:demo222/utils/ui/group_screen.dart';
 import 'package:demo222/utils/ui/home_screen.dart';
 import 'package:flutter/material.dart';
@@ -16,7 +17,7 @@ class _ExpenseTrackerHomeScreenState extends State<ExpenseTrackerHomeScreen> {
   static final List<Widget> _pages = <Widget>[
     Container(key: PageStorageKey('page1'), child: HomeScreen()),
     Container(key: PageStorageKey('page2'), child: ExpenseAnalysisScreen()),
-    Container(key: PageStorageKey('page3'), child: GroupPage()),
+    Container(key: PageStorageKey('page3'), child: GroupScreen()),
     Container(key: PageStorageKey('page4'), child: Text('Page 4')),
   ];
 
