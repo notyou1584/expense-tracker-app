@@ -1,14 +1,15 @@
-
-
 import 'package:datetime_picker_formfield_new/datetime_picker_formfield.dart';
+import 'package:demo222/utils/ui/expensw/add.dart';
 import 'package:demo222/utils/ui/expensw/expense_model.dart';
+import 'package:dropdown_search/dropdown_search.dart';
 import 'package:flutter/material.dart';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:intl/intl.dart';
 
 class ExpenseScreen extends StatefulWidget {
-  const ExpenseScreen({Key? key}) : super(key: key);
+  final String? userId;
+  const ExpenseScreen({Key? key, this.userId}) : super(key: key);
 
   @override
   // ignore: library_private_types_in_public_api
@@ -64,8 +65,8 @@ class _ExpenseScreenState extends State<ExpenseScreen>
       ),
       body: TabBarView(
         controller: _tabController,
-        children: const [
-          ExpenseForm(type: 'Personal'),
+        children: [
+          ExpenseForm(type: 'Personal', userId: widget.userId),
           GroupExpenseForm(type: 'Group'),
         ],
       ),
@@ -73,190 +74,35 @@ class _ExpenseScreenState extends State<ExpenseScreen>
   }
 }
 
-/*class ExpenseForm extends StatefulWidget {
-  final String type;
-
-  const ExpenseForm({Key? key, required this.type}) : super(key: key);
-
-  @override
-  // ignore: library_private_types_in_public_api
-  _ExpenseFormState createState() => _ExpenseFormState();
-}
-
-class _ExpenseFormState extends State<ExpenseForm> {
-  String selectedCurrency = 'USD'; // Default currency
-  String selectedCategory = 'Select Category'; // Default category
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.all(8.0),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          const SizedBox(height: 8),
-          Row(
-            children: [
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    const SizedBox(height: 4),
-                    Row(
-                      children: [
-                        const Icon(Icons.attach_money),
-                        DropdownButton<String>(
-                          value: selectedCurrency,
-                          onChanged: (String? newValue) {
-                            setState(() {
-                              selectedCurrency = newValue!;
-                            });
-                          },
-                          items: <String>['USD', 'EUR', 'GBP', 'JPY', 'INR']
-                              .map<DropdownMenuItem<String>>(
-                                (String value) => DropdownMenuItem<String>(
-                                  value: value,
-                                  child: Text(value),
-                                ),
-                              )
-                              .toList(),
-                        ),
-                        const SizedBox(width: 4),
-                        const Expanded(
-                          child: TextField(
-                            decoration: InputDecoration(
-                              labelText: 'Amount',
-                            ),
-                            keyboardType: TextInputType.number,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ],
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 8),
-          const Row(
-            children: [
-              Icon(Icons.description),
-              Expanded(
-                child: TextField(
-                  decoration: InputDecoration(
-                    labelText: 'Description',
-                  ),
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 8),
-          Row(
-            children: [
-              const Icon(Icons.date_range),
-              Expanded(
-                child: TextField(
-                  decoration: const InputDecoration(
-                    labelText: 'Date',
-                  ),
-                  onTap: () async {
-                    // Handle the picked date
-                  },
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 8),
-          Row(
-            children: [
-              const Icon(Icons.category),
-              Expanded(
-                child: DropdownButton<String>(
-                  value: selectedCategory,
-                  onChanged: (String? newValue) {
-                    setState(() {
-                      selectedCategory = newValue!;
-                    });
-                  },
-                  items: <String>[
-                    'Select Category',
-                    'Category 1',
-                    'Category 2',
-                    'Category 3',
-                  ]
-                      .map<DropdownMenuItem<String>>(
-                        (String value) => DropdownMenuItem<String>(
-                          value: value,
-                          child: Text(value),
-                        ),
-                      )
-                      .toList(),
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 8),
-          Center(
-            child: ElevatedButton(
-              onPressed: () {
-                // Handle form submission
-              },
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.green,
-              ),
-              child: const Text(
-                '+Add Expense',
-                style: TextStyle(
-                  fontSize: 18,
-                  color: Colors.black,
-                ),
-              ),
-            ),
-          ),
-          const SizedBox(height: 16),
-        ],
-      ),
-    );
-  }
-}
-*/
-
 class ExpenseForm extends StatefulWidget {
   final String type;
-  const ExpenseForm({Key? key, required this.type}) : super(key: key);
+
+  final String? userId;
+  ExpenseForm({Key? key, required this.type, required this.userId})
+      : super(key: key);
   @override
   _ExpenseFormState createState() => _ExpenseFormState();
 }
 
 class _ExpenseFormState extends State<ExpenseForm> {
   final _formKey = GlobalKey<FormState>();
-  late TextEditingController _amountController;
-  late TextEditingController _currencyController;
-  late TextEditingController _descriptionController;
-  late TextEditingController _categoryController;
-  DateTime _selectedDate = DateTime.now();
 
+  late TextEditingController _amountController;
+  final _descriptionController = TextEditingController();
+  String _selectedCurrency = 'INR'; // Set default currency
+  String _selectedCategory = 'Food';
+  DateTime _selectedDate = DateTime.now();
   @override
   void initState() {
     super.initState();
     _amountController = TextEditingController();
-    _currencyController = TextEditingController();
-    _descriptionController = TextEditingController();
-    _categoryController = TextEditingController();
-  }
-
-  @override
-  void dispose() {
-    _amountController.dispose();
-    _currencyController.dispose();
-    _descriptionController.dispose();
-    _categoryController.dispose();
-    super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-    final format = DateFormat("yyyy-MM-dd");
+    String userId = widget.userId ?? '';
+    final format = DateFormat("dd-mm-yyyy");
+
     return Scaffold(
       appBar: AppBar(
         title: Text('Add Expense'),
@@ -278,16 +124,22 @@ class _ExpenseFormState extends State<ExpenseForm> {
                   return null;
                 },
               ),
-              TextFormField(
-                controller: _currencyController,
-                decoration: InputDecoration(labelText: 'Currency'),
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Please enter the currency';
-                  }
-                  return null;
+              SizedBox(height: 16),
+              DropdownSearch<String>(
+                items: [
+                  'USD',
+                  'EUR',
+                  'GBP',
+                  'INR'
+                ], // Add more currencies as needed
+                onChanged: (value) {
+                  setState(() {
+                    _selectedCurrency = value!;
+                  });
                 },
+                selectedItem: _selectedCurrency,
               ),
+              SizedBox(height: 16),
               TextFormField(
                 controller: _descriptionController,
                 decoration: InputDecoration(labelText: 'Description'),
@@ -298,15 +150,19 @@ class _ExpenseFormState extends State<ExpenseForm> {
                   return null;
                 },
               ),
-              TextFormField(
-                controller: _categoryController,
-                decoration: InputDecoration(labelText: 'Category'),
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Please enter the category';
-                  }
-                  return null;
+              SizedBox(height: 16),
+              DropdownSearch<String>(
+                items: [
+                  'Food',
+                  'Transportation',
+                  'Shopping'
+                ], // Add more categories
+                onChanged: (value) {
+                  setState(() {
+                    _selectedCategory = value!;
+                  });
                 },
+                selectedItem: _selectedCategory,
               ),
               SizedBox(height: 16),
               DateTimeField(
@@ -334,44 +190,54 @@ class _ExpenseFormState extends State<ExpenseForm> {
               ),
               SizedBox(height: 16),
               ElevatedButton(
-                onPressed: () {
-                  if (_formKey.currentState?.validate() ?? false) {
-                    _addExpense();
+                style: ElevatedButton.styleFrom(
+                    backgroundColor: Color.fromRGBO(30, 81, 85, 1)),
+                onPressed: () async {
+                  // Validate and add expense to Firestore
+                  if (_amountController.text.isNotEmpty &&
+                      _descriptionController.text.isNotEmpty) {
+                    Expense newExpense = Expense(
+                      id: '',
+                      userId: userId,
+                      amount: double.parse(_amountController.text),
+                      currency: _selectedCurrency,
+                      description: _descriptionController.text,
+                      category: _selectedCategory,
+                      date: _selectedDate,
+                    );
+
+                    // Call the addExpense function here (Firebase Firestore)
+                    await addExpense(newExpense);
+
+                    // Show a success message or navigate to the expense list page
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        content: Text('Expense added successfully'),
+                      ),
+                    );
+                  } else {
+                    // Show an error message if any field is empty
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        content: Text('Please fill in all fields'),
+                        backgroundColor: Colors.red,
+                      ),
+                    );
                   }
                 },
-                child: Text('Add Expense'),
+                child: const Text(
+                  'Add Expense',
+                  style: TextStyle(
+                    fontSize: 18,
+                    color: Colors.white,
+                  ),
+                ),
               ),
             ],
           ),
         ),
       ),
     );
-  }
-
-  void _addExpense() {
-    final amount = double.parse(_amountController.text);
-    final currency = _currencyController.text;
-    final description = _descriptionController.text;
-    final category = _categoryController.text;
-
-    final expense = addexpense(
-      id: '',
-      amount: amount,
-      currency: currency,
-      description: description,
-      category: category,
-      date: _selectedDate,
-    );
-
-    FirebaseFirestore.instance.collection('Expense').add({
-      'amount': expense.amount,
-      'currency': expense.currency,
-      'description': expense.description,
-      'category': expense.category,
-      'date': Timestamp.fromDate(expense.date),
-    });
-
-    Navigator.of(context).pop();
   }
 }
 

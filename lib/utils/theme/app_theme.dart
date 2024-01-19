@@ -66,7 +66,6 @@ final appThemeData = {
           background: backgroundColor,
           onSecondary: onSecondaryColor,
           onTertiary: primaryTxtColor,
-          onSurface: levelLockedColor,
         )
         .copyWith(background: backgroundColor),
   ),

@@ -6,6 +6,7 @@ import 'package:demo222/utils/ui/expense_add.dart';
 import 'package:demo222/utils/ui/group_main.dart';
 import 'package:demo222/utils/ui/group_screen.dart';
 import 'package:demo222/utils/ui/home.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:demo222/utils/ui/SplashScreen.dart';
@@ -15,12 +16,14 @@ void main() async {
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
-
-  runApp(const MyApp());
+User? user = FirebaseAuth.instance.currentUser;
+  String? userId = user?.uid;
+  runApp(MyApp(userId: userId));
 }
 
 class MyApp extends StatelessWidget {
-  const MyApp({super.key});
+  final String? userId;
+  const MyApp({Key? key, required this.userId}) : super(key: key);
   @override
   Widget build(BuildContext context) {
     AppTheme _theme = AppTheme.light;
@@ -32,7 +35,7 @@ class MyApp extends StatelessWidget {
         '/home': (_) => ExpenseTrackerHomeScreen(),
         '/addexpense': (_) => ExpenseScreen(),
         '/group': (_) => GroupPage(),
-        '/groupmain' : (_) => GroupScreen(),
+        '/groupmain': (_) => GroupScreen(),
       },
     );
   }
