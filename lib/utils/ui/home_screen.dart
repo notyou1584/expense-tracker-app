@@ -1,15 +1,9 @@
+
 import 'package:flutter/material.dart';
 
-class Expense {
-  String category;
-  String description;
-  double amount;
-
-  Expense(this.category, this.description, this.amount);
-}
-
 class HomeScreen extends StatefulWidget {
-  const HomeScreen({super.key});
+  final String? userId;
+  const HomeScreen({Key? key, this.userId}) : super(key: key);
 
   @override
   _HomeScreenState createState() => _HomeScreenState();
@@ -20,13 +14,6 @@ class _HomeScreenState extends State<HomeScreen> {
 
   @override
   Widget build(BuildContext context) {
-    List<Expense> expenses = [
-      Expense('Food', 'Groceries', 50.0),
-      Expense('Utilities', 'Electricity', 30.0),
-      Expense('Entertainments', 'Movie Tickets', 20.0),
-      Expense('Food', 'Dinner', 25.0),
-      Expense('Transportation', 'Gas', 40.0),
-    ];
     return Scaffold(
       appBar: AppBar(
         title: const Text('Hello, Username!'),
@@ -39,25 +26,13 @@ class _HomeScreenState extends State<HomeScreen> {
         ],
       ),
       body: Column(
-        children: [
+        children: <Widget>[
           SizedBox(height: 20),
           Text(
             'Recent Expenses',
             style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
           ),
           SizedBox(height: 10),
-          Expanded(
-            child: ListView.builder(
-              itemCount: expenses.length,
-              itemBuilder: (context, index) {
-                return ListTile(
-                  title: Text(expenses[index].description),
-                  subtitle: Text(
-                      '${expenses[index].category}: \$${expenses[index].amount.toStringAsFixed(2)}'),
-                );
-              },
-            ),
-          ),
         ],
       ),
     );

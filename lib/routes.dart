@@ -4,4 +4,5 @@ class Routes {
   static const addexpense = '/addexpense';
   static const group = '/group';
   static const groupmain = '/groupmain';
+  static const recent = '/recent';
 }

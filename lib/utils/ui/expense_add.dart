@@ -4,7 +4,6 @@ import 'package:demo222/utils/ui/expensw/expense_model.dart';
 import 'package:dropdown_search/dropdown_search.dart';
 import 'package:flutter/material.dart';
 
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:intl/intl.dart';
 
 class ExpenseScreen extends StatefulWidget {
@@ -104,9 +103,6 @@ class _ExpenseFormState extends State<ExpenseForm> {
     final format = DateFormat("dd-mm-yyyy");
 
     return Scaffold(
-      appBar: AppBar(
-        title: Text('Add Expense'),
-      ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Form(
@@ -226,7 +222,7 @@ class _ExpenseFormState extends State<ExpenseForm> {
                   }
                 },
                 child: const Text(
-                  'Add Expense',
+                  '+Add Expense',
                   style: TextStyle(
                     fontSize: 18,
                     color: Colors.white,
