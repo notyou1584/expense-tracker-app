@@ -19,13 +19,20 @@ class UserProfileScreen extends StatefulWidget {
 class _UserProfileScreenState extends State<UserProfileScreen> {
   final TextEditingController _usernameController = TextEditingController();
   final String _username = 'Noopur'; // Replace with the actual username
-  bool _isDarkMode = false;
+  final bool _isDarkMode = false;
 
   @override
   void initState() {
     super.initState();
     // Initialize the username when the screen is loaded
     _usernameController.text = _username;
+  }
+
+  // Function to handle password reset
+  Future<void> _resetPassword() async {
+    // Add your logic to send a password reset email
+    // This is just a placeholder function
+    // You should replace it with the actual logic to send a password reset email.
   }
 
   @override
@@ -94,23 +101,9 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
               ),
               const Divider(),
               ListTile(
-                title: const Text('Theme'),
-                leading: const Icon(Icons.color_lens),
-                onTap: () {
-                  // Handle theme switch
-                  setState(() {
-                    _isDarkMode = !_isDarkMode;
-                  });
-                },
-                trailing: Switch(
-                  value: _isDarkMode,
-                  onChanged: (value) {
-                    // Toggle between light and dark modes
-                    setState(() {
-                      _isDarkMode = value;
-                    });
-                  },
-                ),
+                title: const Text('Reset Password'),
+                leading: const Icon(Icons.lock),
+                onTap: _resetPassword,
               ),
               const Divider(),
               ListTile(
