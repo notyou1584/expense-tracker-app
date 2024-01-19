@@ -6,6 +6,7 @@ import 'package:demo222/utils/ui/expense_add.dart';
 import 'package:demo222/utils/ui/group_main.dart';
 import 'package:demo222/utils/ui/group_screen.dart';
 import 'package:demo222/utils/ui/home.dart';
+import 'package:demo222/utils/ui/settings_screen.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
@@ -36,6 +37,7 @@ class MyApp extends StatelessWidget {
         '/addexpense': (_) => ExpenseScreen(),
         '/group': (_) => GroupPage(),
         '/groupmain': (_) => GroupScreen(),
+        '/setings':(_) => SettingsScreen(),
       },
     );
   }

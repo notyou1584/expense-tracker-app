@@ -1,4 +1,4 @@
-
+import 'package:demo222/utils/ui/recent.dart';
 import 'package:flutter/material.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -25,16 +25,7 @@ class _HomeScreenState extends State<HomeScreen> {
           ),
         ],
       ),
-      body: Column(
-        children: <Widget>[
-          SizedBox(height: 20),
-          Text(
-            'Recent Expenses',
-            style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-          ),
-          SizedBox(height: 10),
-        ],
-      ),
+      body: ExpenseList(userId: widget.userId??''),
     );
   }
 }

@@ -19,7 +19,7 @@ Future<void> addExpense(Expense expense) async {
 Stream<List<Expense>> getExpenses(String userId) {
   return _firestore
       .collection('expenses')
-      .where('userId', isEqualTo: userId)
+      .where('userId', isEqualTo: FirebaseAuth.instance.currentUser!.uid)
       .snapshots()
       .map((snapshot) => snapshot.docs
           .map((doc) => Expense(
@@ -29,7 +29,7 @@ Stream<List<Expense>> getExpenses(String userId) {
                 currency: doc['currency'],
                 description: doc['description'],
                 category: doc['category'],
-                date: (doc['date'] as Timestamp).toDate(),
+                date: (doc['date']).toDate(),
               ))
           .toList());
 }

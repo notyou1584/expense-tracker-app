@@ -211,6 +211,7 @@ class _ExpenseFormState extends State<ExpenseForm> {
                         content: Text('Expense added successfully'),
                       ),
                     );
+                    Navigator.pop(context);
                   } else {
                     // Show an error message if any field is empty
                     ScaffoldMessenger.of(context).showSnackBar(
@@ -222,7 +223,7 @@ class _ExpenseFormState extends State<ExpenseForm> {
                   }
                 },
                 child: const Text(
-                  '+Add Expense',
+                  'Add Expense',
                   style: TextStyle(
                     fontSize: 18,
                     color: Colors.white,

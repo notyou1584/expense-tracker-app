@@ -42,7 +42,7 @@ class ExpenseList extends StatelessWidget {
                   children: [
                     Text('Description: ${expense.description}'),
                     Text('Category: ${expense.category}'),
-                    Text('Date: ${expense.date.toLocal()}'),
+                    Text('Date: ${expense.date}'),
                   ],
                 ),
               ),
