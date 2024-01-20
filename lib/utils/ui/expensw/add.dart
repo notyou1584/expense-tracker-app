@@ -20,16 +20,17 @@ Stream<List<Expense>> getExpenses(String userId) {
   return _firestore
       .collection('expenses')
       .where('userId', isEqualTo: FirebaseAuth.instance.currentUser!.uid)
+      .orderBy('date', descending: true)
       .snapshots()
       .map((snapshot) => snapshot.docs
           .map((doc) => Expense(
                 id: doc.id,
                 userId: doc['userId'],
-                amount: doc['amount'],
+                amount: (doc['amount'] as num).toDouble(),
                 currency: doc['currency'],
                 description: doc['description'],
                 category: doc['category'],
-                date: (doc['date']).toDate(),
+                date: (doc['date'] as Timestamp).toDate(),
               ))
           .toList());
 }

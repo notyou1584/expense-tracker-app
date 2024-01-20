@@ -1,6 +1,7 @@
 import 'package:demo222/utils/ui/expensw/add.dart';
 import 'package:demo222/utils/ui/expensw/expense_model.dart';
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 
 class ExpenseList extends StatelessWidget {
   final String userId;
@@ -32,17 +33,18 @@ class ExpenseList extends StatelessWidget {
           itemCount: expenses.length,
           itemBuilder: (context, index) {
             Expense expense = expenses[index];
+            String formattedDate = DateFormat('dd MMM').format(expense.date);
 
             return Card(
               margin: EdgeInsets.symmetric(vertical: 8.0),
               child: ListTile(
-                title: Text('Amount: ${expense.amount} ${expense.currency}'),
+                title: Text('${expense.description}    ${expense.amount} '),
                 subtitle: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text('Description: ${expense.description}'),
+                    Text('you'),
                     Text('Category: ${expense.category}'),
-                    Text('Date: ${expense.date}'),
+                    Text('Date: ${formattedDate}'),
                   ],
                 ),
               ),
