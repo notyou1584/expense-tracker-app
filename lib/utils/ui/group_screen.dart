@@ -1,3 +1,4 @@
+import 'package:demo222/utils/ui/groupdetails.dart';
 import 'package:demo222/utils/ui/new_group.dart';
 import 'package:flutter/material.dart';
 
@@ -122,15 +123,7 @@ class GroupCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
-      onTap: () {
-        // Navigate to the group details screen when a group card is tapped
-        Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (context) => GroupDetailsScreen(groupName: name),
-          ),
-        );
-      },
+      onTap: () {},
       child: Container(
         width: double.infinity,
         padding: const EdgeInsets.all(16),
@@ -155,28 +148,6 @@ class GroupCard extends StatelessWidget {
               style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
             ),
           ],
-        ),
-      ),
-    );
-  }
-}
-
-class GroupDetailsScreen extends StatelessWidget {
-  final String groupName;
-
-  const GroupDetailsScreen({Key? key, required this.groupName})
-      : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text('Group: $groupName'),
-      ),
-      body: Center(
-        child: Text(
-          'Details of $groupName',
-          style: const TextStyle(fontSize: 20.0),
         ),
       ),
     );

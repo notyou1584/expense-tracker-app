@@ -47,6 +47,7 @@ dependencies:
   intl: ^0.18.1
   dropdown_search: ^5.0.6
   flutter_svg: ^2.0.9
+  email_validator: ^2.1.17
   
 git branch -M maingit branch -M maindev_dependencies:
   flutter_test:
