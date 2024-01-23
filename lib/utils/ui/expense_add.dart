@@ -51,7 +51,6 @@ class _ExpenseScreenState extends State<ExpenseScreen>
               ],
         bottom: TabBar(
           controller: _tabController,
-          indicatorColor: Colors.green,
           tabs: const [
             Tab(
               text: 'Personal',

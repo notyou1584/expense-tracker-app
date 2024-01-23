@@ -27,9 +27,8 @@ class MyApp extends StatelessWidget {
   const MyApp({Key? key, required this.userId}) : super(key: key);
   @override
   Widget build(BuildContext context) {
-    AppTheme _theme = AppTheme.light;
     return MaterialApp(
-      theme: appThemeData[_theme],
+      theme: MyThemes.lightTheme,
       home: SplashScreen(),
       routes: {
         '/auth': (_) => AuthGate(),
@@ -37,7 +36,7 @@ class MyApp extends StatelessWidget {
         '/addexpense': (_) => ExpenseScreen(),
         '/group': (_) => GroupPage(),
         '/groupmain': (_) => GroupScreen(),
-        '/setings':(_) => SettingsScreen(),
+        '/setings': (_) => SettingsScreen(),
       },
     );
   }

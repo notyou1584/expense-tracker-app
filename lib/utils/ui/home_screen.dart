@@ -25,7 +25,7 @@ class _HomeScreenState extends State<HomeScreen> {
           ),
         ],
       ),
-      body: ExpenseList(userId: widget.userId??''),
+      body: ExpenseList(userId: widget.userId ?? ''),
     );
   }
 }

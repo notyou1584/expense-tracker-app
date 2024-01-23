@@ -3,7 +3,6 @@ import 'package:demo222/routes.dart';
 import 'package:demo222/utils/ui/group_main.dart';
 import 'package:demo222/utils/ui/home_screen.dart';
 import 'package:demo222/utils/ui/profile_screen.dart';
-import 'package:firebase_ui_auth/firebase_ui_auth.dart';
 import 'package:flutter/material.dart';
 
 class ExpenseTrackerHomeScreen extends StatefulWidget {

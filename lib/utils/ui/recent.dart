@@ -1,3 +1,5 @@
+import 'package:demo222/utils/ui/editandicons.dart';
+import 'package:demo222/utils/ui/expense_show.dart';
 import 'package:demo222/utils/ui/expensw/add.dart';
 import 'package:demo222/utils/ui/expensw/expense_model.dart';
 import 'package:flutter/material.dart';
@@ -7,6 +9,16 @@ class ExpenseList extends StatelessWidget {
   final String userId;
 
   ExpenseList({required this.userId});
+
+  Future<void> _showExpenseDetails(
+      BuildContext context, Expense expense) async {
+    await Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => ExpenseDetailsScreen(expense: expense),
+      ),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -38,15 +50,33 @@ class ExpenseList extends StatelessWidget {
             return Card(
               margin: EdgeInsets.symmetric(vertical: 8.0),
               child: ListTile(
-                title: Text('${expense.description}    ${expense.amount} '),
-                subtitle: Column(
+                contentPadding:
+                    EdgeInsets.all(20.0), // Adjust the padding as needed
+                dense: false,
+                leading: Icon(
+                  categoryIcons[expense.category] ?? Icons.category,
+                  size: 42.0,
+                ),
+                title: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text('you'),
-                    Text('Category: ${expense.category}'),
-                    Text('Date: ${formattedDate}'),
+                    Text(' ${expense.description}'),
                   ],
                 ),
+                trailing: Column(
+                  crossAxisAlignment: CrossAxisAlignment.end,
+                  children: [
+                    Text(
+                      ' ${expense.amount} ${expense.currency}',
+                      style: TextStyle(fontSize: 18.0, color: Colors.red),
+                    ),
+                    Text(
+                      ' $formattedDate',
+                      style: TextStyle(fontSize: 14.0),
+                    ),
+                  ],
+                ),
+                onTap: () => _showExpenseDetails(context, expense),
               ),
             );
           },

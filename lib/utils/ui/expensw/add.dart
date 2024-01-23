@@ -4,7 +4,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'expense_model.dart';
 
 final FirebaseFirestore _firestore = FirebaseFirestore.instance;
-
+//add
 Future<void> addExpense(Expense expense) async {
   await _firestore.collection('expenses').add({
     'userId': FirebaseAuth.instance.currentUser!.uid,
@@ -16,6 +16,7 @@ Future<void> addExpense(Expense expense) async {
   });
 }
 
+//get
 Stream<List<Expense>> getExpenses(String userId) {
   return _firestore
       .collection('expenses')
@@ -33,4 +34,20 @@ Stream<List<Expense>> getExpenses(String userId) {
                 date: (doc['date'] as Timestamp).toDate(),
               ))
           .toList());
+}
+//delete
+
+void deleteExpense(Expense expense) async {
+  await _firestore.collection('expenses').doc(expense.id).delete();
+}
+
+//edit
+Future<void> editExpense(Expense expense) async {
+  await _firestore.collection('expenses').doc(expense.id).update({
+    'amount': expense.amount,
+    'currency': expense.currency,
+    'description': expense.description,
+    'category': expense.category,
+    'date': expense.date,
+  });
 }

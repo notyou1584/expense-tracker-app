@@ -46,6 +46,7 @@ dependencies:
   provider: ^6.1.1
   intl: ^0.18.1
   dropdown_search: ^5.0.6
+  flutter_svg: ^2.0.9
   
 git branch -M maingit branch -M maindev_dependencies:
   flutter_test:
@@ -69,8 +70,10 @@ flutter:
   # the material Icons class.
   uses-material-design: true
   assets:
-   - Images/Expense-o.jpg
-
+   - assets/Images/Expense-o.jpg
+   - assets/icons/shopping.svg
+   - assets/icons/subscription.svg
+   - assets/icons/default.svg
   # To add assets to your application, add an assets section, like this
 
   # An image asset can refer to one or more resolution-specific "variants", see
