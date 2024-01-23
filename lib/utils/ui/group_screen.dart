@@ -1,23 +1,5 @@
+import 'package:demo222/utils/ui/new_group.dart';
 import 'package:flutter/material.dart';
-
-void main() {
-  runApp(const MyApp());
-}
-
-class MyApp extends StatelessWidget {
-  const MyApp({Key? key}) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'Group Screen',
-      theme: ThemeData(
-        primarySwatch: Colors.green,
-      ),
-      home: const GroupScreen(),
-    );
-  }
-}
 
 class GroupScreen extends StatefulWidget {
   const GroupScreen({Key? key}) : super(key: key);
@@ -103,7 +85,12 @@ class _GroupScreenState extends State<GroupScreen> {
             Center(
               child: ElevatedButton(
                 onPressed: () {
-                  // Handle starting a new group
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => CreateGroupScreen(),
+                    ),
+                  );
                 },
                 style: ElevatedButton.styleFrom(
                   foregroundColor: Colors.black,

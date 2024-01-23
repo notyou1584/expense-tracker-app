@@ -3,7 +3,6 @@ import 'package:demo222/authscreens/auth_gate.dart';
 import 'package:demo222/authscreens/firebase_options.dart';
 import 'package:demo222/utils/theme/app_theme.dart';
 import 'package:demo222/utils/ui/expense_add.dart';
-import 'package:demo222/utils/ui/group_main.dart';
 import 'package:demo222/utils/ui/group_screen.dart';
 import 'package:demo222/utils/ui/home.dart';
 import 'package:demo222/utils/ui/settings_screen.dart';
@@ -34,7 +33,6 @@ class MyApp extends StatelessWidget {
         '/auth': (_) => AuthGate(),
         '/home': (_) => ExpenseTrackerHomeScreen(),
         '/addexpense': (_) => ExpenseScreen(),
-        '/group': (_) => GroupPage(),
         '/groupmain': (_) => GroupScreen(),
         '/setings': (_) => SettingsScreen(),
       },
