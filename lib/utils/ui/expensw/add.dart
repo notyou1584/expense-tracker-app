@@ -4,6 +4,17 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'expense_model.dart';
 
 final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+Future<void> addUserToFirestore(User user) async {
+  CollectionReference users = FirebaseFirestore.instance.collection('users');
+  DocumentSnapshot userSnapshot = await users.doc(user.uid).get();
+  if (!userSnapshot.exists) {
+    await users.doc(user.uid).set({
+      'userId': user.uid,
+      'email': user.email,
+    });
+  }
+}
+
 //add
 Future<void> addExpense(Expense expense) async {
   await _firestore.collection('expenses').add({

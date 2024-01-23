@@ -33,7 +33,7 @@ class MyApp extends StatelessWidget {
         '/auth': (_) => AuthGate(),
         '/home': (_) => ExpenseTrackerHomeScreen(),
         '/addexpense': (_) => ExpenseScreen(),
-        '/groupmain': (_) => GroupScreen(),
+        '/group': (_) => GroupScreen(),
         '/setings': (_) => SettingsScreen(),
       },
     );
