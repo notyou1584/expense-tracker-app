@@ -1,5 +1,3 @@
-// ignore_for_file: prefer_const_constructors
-
 import 'package:demo222/utils/ui/home.dart';
 import 'package:firebase_auth/firebase_auth.dart' hide EmailAuthProvider;
 import 'package:firebase_ui_auth/firebase_ui_auth.dart';
@@ -7,14 +5,16 @@ import 'package:flutter/material.dart';
 import 'package:firebase_ui_oauth_google/firebase_ui_oauth_google.dart';
 
 class AuthGate extends StatelessWidget {
-  const AuthGate({super.key});
+  const AuthGate({Key? key});
 
   @override
   Widget build(BuildContext context) {
     return StreamBuilder<User?>(
       stream: FirebaseAuth.instance.authStateChanges(),
       builder: (context, snapshot) {
-        if (!snapshot.hasData) {
+        final user = snapshot.data;
+
+        if (user == null) {
           return SignInScreen(
             providers: [
               EmailAuthProvider(),
@@ -56,8 +56,61 @@ class AuthGate extends StatelessWidget {
             },
           );
         }
+
+        if (!user.emailVerified) {
+          return VerificationScreen(user: user);
+        }
+
         return ExpenseTrackerHomeScreen();
       },
+    );
+  }
+}
+
+class VerificationScreen extends StatelessWidget {
+  final User user;
+
+  VerificationScreen({required this.user});
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text('Email Verification'),
+      ),
+      body: Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Text(
+              'Your email is not verified.',
+              style: TextStyle(fontSize: 18),
+            ),
+            SizedBox(height: 20),
+            ElevatedButton(
+              onPressed: () async {
+                // Resend verification email
+                await user.sendEmailVerification();
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                    content: Text(
+                        'Verification email sent. Please check your inbox.'),
+                  ),
+                );
+              },
+              child: Text('Resend Verification Email'),
+            ),
+            SizedBox(height: 20),
+            ElevatedButton(
+              onPressed: () async {
+                // Sign out the user
+                await FirebaseAuth.instance.signOut();
+              },
+              child: Text('Sign Out'),
+            ),
+          ],
+        ),
+      ),
     );
   }
 }
