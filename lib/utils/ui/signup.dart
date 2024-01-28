@@ -5,7 +5,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 class SignUpScreen extends StatefulWidget {
   @override
   _SignUpScreenState createState() => _SignUpScreenState();
-}//_isDarkMode ? ThemeData.dark() : ThemeData.light(),
+} //_isDarkMode ? ThemeData.dark() : ThemeData.light(),
 
 class _SignUpScreenState extends State<SignUpScreen> {
   final _auth = FirebaseAuth.instance;
