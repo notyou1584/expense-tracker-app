@@ -1,9 +1,10 @@
 import 'package:demo222/home%20screens/analysis.dart';
 import 'package:demo222/routes.dart';
-import 'package:demo222/utils/ui/group_screen.dart';
+import 'package:demo222/utils/ui/group_main.dart';
 import 'package:demo222/utils/ui/home_screen.dart';
 import 'package:demo222/utils/ui/profile_screen.dart';
 import 'package:flutter/material.dart';
+import 'package:demo222/utils/theme/app_theme.dart';
 
 class ExpenseTrackerHomeScreen extends StatefulWidget {
   @override
@@ -29,6 +30,7 @@ class _ExpenseTrackerHomeScreenState extends State<ExpenseTrackerHomeScreen> {
 
   @override
   Widget build(BuildContext context) {
+    print(Theme.of(context).primaryColor);
     return Scaffold(
       floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
       floatingActionButton: FloatingActionButton(

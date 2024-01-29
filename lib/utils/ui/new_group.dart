@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:demo222/utils/ui/group_screen.dart';
+import 'package:demo222/utils/ui/groupdetails.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:email_validator/email_validator.dart';
@@ -113,6 +114,15 @@ class _CreateGroupScreenState extends State<CreateGroupScreen> {
         });
 
         print('Group created with ID: ${groupRef.id}');
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => GroupDetailsScreen(
+              groupId: groupRef.id,
+              groupName: 'groupName',
+            ),
+          ),
+        );
       } catch (e) {
         // Handle error
         print('Error creating group: $e');

@@ -1,5 +1,3 @@
-// ignore_for_file: library_private_types_in_public_api
-
 import 'package:flutter/material.dart';
 
 void main() {
@@ -135,6 +133,7 @@ class GroupCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return GestureDetector(
       onTap: () {
+        // Navigate to the group details screen when a group card is tapped
         Navigator.push(
           context,
           MaterialPageRoute(
@@ -142,320 +141,52 @@ class GroupCard extends StatelessWidget {
           ),
         );
       },
-      child: Card(
-        elevation: 2,
-        margin: const EdgeInsets.symmetric(vertical: 8),
-        child: Padding(
-          padding: const EdgeInsets.all(16),
-          child: Row(
-            children: [
-              Container(
-                width: 50,
-                height: 50,
-                decoration: const BoxDecoration(
-                  color: Color.fromRGBO(30, 81, 85, 1),
-                  borderRadius: BorderRadius.all(Radius.circular(25)),
-                ),
-                child: const Icon(Icons.group, color: Colors.white),
+      child: Container(
+        width: double.infinity,
+        padding: const EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          color: Colors.grey[200],
+          borderRadius: BorderRadius.circular(8),
+        ),
+        child: Row(
+          children: [
+            Container(
+              width: 50,
+              height: 50,
+              decoration: const BoxDecoration(
+                color: Color.fromRGBO(30, 81, 85, 1), // Change the color here
+                borderRadius: BorderRadius.all(Radius.circular(25)),
               ),
-              const SizedBox(width: 16),
-              Text(
-                name,
-                style:
-                    const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-              ),
-            ],
-          ),
+              child: const Icon(Icons.group, color: Colors.white),
+            ),
+            const SizedBox(width: 16),
+            Text(
+              name,
+              style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+            ),
+          ],
         ),
       ),
     );
   }
 }
 
-class GroupDetailsScreen extends StatefulWidget {
+class GroupDetailsScreen extends StatelessWidget {
   final String groupName;
 
   const GroupDetailsScreen({Key? key, required this.groupName})
       : super(key: key);
 
   @override
-  _GroupDetailsScreenState createState() => _GroupDetailsScreenState();
-}
-
-class _GroupDetailsScreenState extends State<GroupDetailsScreen> {
-  String paidByName = 'Hetvi';
-  double totalAmountPaid = 250.0;
-  late double amountPerPerson;
-
-  List<String> participants = ['Noopur', 'Hetvi', 'Sneha'];
-  List<double> amountsPaid = [50.0, 200.0, 0.0];
-
-  @override
-  void initState() {
-    super.initState();
-    calculateTotalAmount();
-  }
-
-  void calculateTotalAmount() {
-    totalAmountPaid = amountsPaid.reduce((value, element) => value + element);
-    amountPerPerson = totalAmountPaid / participants.length;
-  }
-
-  @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Group: ${widget.groupName}'),
-      ),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const Text(
-              'Expense Info',
-              style: TextStyle(
-                fontSize: 20,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-            ExpenseCard(
-              expenseName: 'Food',
-              amount: amountsPaid[0],
-              icon: Icons.fastfood,
-              onTap: () {
-                // Navigate to a new screen when Food expense is clicked
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => const ExpenseDetailsScreen(
-                      title: 'Food Expense',
-                      content: 'Details for Food Expense',
-                    ),
-                  ),
-                );
-              },
-            ),
-            ExpenseCard(
-              expenseName: 'Shopping',
-              amount: amountsPaid[1],
-              icon: Icons.shopping_cart,
-              onTap: () {
-                // Navigate to a new screen when Shopping expense is clicked
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => const ExpenseDetailsScreen(
-                      title: 'Shopping Expense',
-                      content: 'Details for Shopping Expense',
-                    ),
-                  ),
-                );
-              },
-            ),
-            const SizedBox(height: 12),
-            const Text(
-              'Paid By',
-              style: TextStyle(
-                fontSize: 20,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-            PaidByCard(
-              paidByName: paidByName,
-              amountPaid: totalAmountPaid,
-            ),
-            const SizedBox(height: 12),
-            const Text(
-              'Amount Split Between',
-              style: TextStyle(
-                fontSize: 20,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-            for (String participant in participants)
-              SplitAmountCard(
-                participantName: participant,
-                amount: amountPerPerson,
-              ),
-            const SizedBox(height: 12),
-            const Spacer(),
-            Center(
-              child: ElevatedButton(
-                onPressed: () {
-                  // Handle Add Expense button click
-                },
-                style: ElevatedButton.styleFrom(
-                  foregroundColor: Colors.white,
-                  backgroundColor: const Color.fromRGBO(30, 81, 85, 1),
-                  padding: const EdgeInsets.symmetric(
-                    vertical: 14.0,
-                    horizontal: 28.0,
-                  ),
-                ),
-                child: const Text(
-                  'Add Expense',
-                  style: TextStyle(fontSize: 18),
-                ),
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-class ExpenseDetailsScreen extends StatelessWidget {
-  final String title;
-  final String content;
-
-  const ExpenseDetailsScreen({
-    Key? key,
-    required this.title,
-    required this.content,
-  }) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text(title),
+        title: Text('Group: $groupName'),
       ),
       body: Center(
-        child: Text(content),
-      ),
-    );
-  }
-}
-
-class ExpenseCard extends StatelessWidget {
-  final String expenseName;
-  final double amount;
-  final IconData icon;
-  final VoidCallback? onTap;
-
-  const ExpenseCard({
-    Key? key,
-    required this.expenseName,
-    required this.amount,
-    required this.icon,
-    this.onTap,
-  }) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: onTap,
-      child: Card(
-        elevation: 2,
-        margin: const EdgeInsets.only(bottom: 8),
-        child: ListTile(
-          title: Row(
-            children: [
-              Icon(icon, color: Colors.black),
-              const SizedBox(width: 8),
-              Text(
-                'Expense: $expenseName',
-                style: const TextStyle(
-                  color: Colors.black,
-                ),
-              ),
-              const Spacer(),
-              Row(
-                children: [
-                  const Text('₹'),
-                  SizedBox(
-                    width: 50,
-                    child: Text(
-                      amount.toString(),
-                      style: const TextStyle(
-                        color: Colors.black,
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-class PaidByCard extends StatelessWidget {
-  final String paidByName;
-  final double amountPaid;
-
-  const PaidByCard({
-    Key? key,
-    required this.paidByName,
-    required this.amountPaid,
-  }) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    return Card(
-      elevation: 2,
-      margin: const EdgeInsets.only(bottom: 8),
-      child: ListTile(
-        title: Row(
-          children: [
-            const SizedBox(width: 8),
-            Text(
-              'Paid By: $paidByName',
-              style: const TextStyle(
-                color: Colors.black,
-              ),
-            ),
-            const Spacer(),
-            Text(
-              '₹${amountPaid.toStringAsFixed(2)}',
-              style: const TextStyle(
-                color: Colors.black,
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-class SplitAmountCard extends StatelessWidget {
-  final String participantName;
-  final double amount;
-
-  const SplitAmountCard({
-    Key? key,
-    required this.participantName,
-    required this.amount,
-  }) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    return Card(
-      elevation: 2,
-      margin: const EdgeInsets.only(bottom: 8),
-      child: ListTile(
-        title: Row(
-          children: [
-            const SizedBox(width: 8),
-            Text(
-              participantName,
-              style: const TextStyle(
-                color: Colors.black,
-              ),
-            ),
-            const Spacer(),
-            Text(
-              '₹${amount.toStringAsFixed(2)}',
-              style: const TextStyle(
-                color: Colors.black,
-              ),
-            ),
-          ],
+        child: Text(
+          'Details of $groupName',
+          style: const TextStyle(fontSize: 20.0),
         ),
       ),
     );
