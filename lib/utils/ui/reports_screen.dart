@@ -3,26 +3,6 @@
 import 'package:flutter/material.dart';
 import 'package:fl_chart/fl_chart.dart';
 
-void main() {
-  runApp(const MyApp());
-}
-
-class MyApp extends StatelessWidget {
-  const MyApp({Key? key}) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'Expense Analysis',
-      theme: ThemeData(
-        primarySwatch: Colors.blue,
-        hintColor: Colors.orangeAccent,
-        fontFamily: 'Roboto',
-      ),
-      home: const AnalysisScreen(),
-    );
-  }
-}
 
 class AnalysisScreen extends StatefulWidget {
   const AnalysisScreen({Key? key}) : super(key: key);
