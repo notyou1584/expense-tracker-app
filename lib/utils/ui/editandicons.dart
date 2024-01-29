@@ -14,15 +14,6 @@ final Map<String, IconData> categoryIcons = {
   // Add more categories and icons as needed
 };
 
-Future<void> _showExpenseDetails(BuildContext context, Expense expense) async {
-  await Navigator.push(
-    context,
-    MaterialPageRoute(
-      builder: (context) => ExpenseDetailsScreen(expense: expense),
-    ),
-  );
-}
-
 class EditExpenseForm extends StatefulWidget {
   final Expense expense;
 

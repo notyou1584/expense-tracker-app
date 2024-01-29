@@ -1,4 +1,7 @@
+// ignore_for_file: library_private_types_in_public_api
+
 import 'package:flutter/material.dart';
+import 'package:fl_chart/fl_chart.dart';
 
 void main() {
   runApp(const MyApp());
@@ -10,256 +13,208 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Group Expenses App',
+      title: 'Expense Analysis',
       theme: ThemeData(
-        primarySwatch: Colors.green,
+        primarySwatch: Colors.blue,
+        hintColor: Colors.orangeAccent,
+        fontFamily: 'Roboto',
       ),
-      home: const GroupDetailsScreen(),
+      home: const AnalysisScreen(),
     );
   }
 }
 
-class GroupDetailsScreen extends StatelessWidget {
-  const GroupDetailsScreen({Key? key}) : super(key: key);
+class AnalysisScreen extends StatefulWidget {
+  const AnalysisScreen({Key? key}) : super(key: key);
 
   @override
-  Widget build(BuildContext context) {
-    return DefaultTabController(
-      length: 3,
-      child: Scaffold(
-        appBar: AppBar(
-          title: const Text('Group Name'),
-          leading: IconButton(
-            icon: const Icon(Icons.arrow_back),
-            onPressed: () {
-              Navigator.of(context).pop();
-            },
-          ),
-          actions: [
-            IconButton(
-              icon: const Icon(Icons.settings),
-              onPressed: () {
-                // Handle settings icon press
-              },
-            ),
-          ],
-          bottom: const TabBar(
-            tabs: [
-              Tab(text: 'Expenses'),
-              Tab(text: 'Settle Up'),
-              Tab(text: 'Reports'),
-            ],
-            indicatorColor: Color.fromRGBO(30, 81, 85, 1),
-            labelPadding: EdgeInsets.symmetric(horizontal: 20.0),
-          ),
-        ),
-        body: const TabBarView(
-          children: [
-            FoodExpensesScreen(),
-            SettleUpScreen(), // New screen for Settle Up
-            Center(child: Text('Reports Content')),
-          ],
-        ),
-      ),
-    );
-  }
+  _AnalysisScreenState createState() => _AnalysisScreenState();
 }
 
-class FoodExpensesScreen extends StatelessWidget {
-  const FoodExpensesScreen({Key? key}) : super(key: key);
+class _AnalysisScreenState extends State<AnalysisScreen> {
+  late Map<String, double> expenseData;
+  late double totalAmount;
+  late String selectedReportType;
 
   @override
-  Widget build(BuildContext context) {
-    // Sample food expenses data
-    Map<String, double> foodExpenses = {
-      'Coke': 20.0,
-      'Maggie': 30.0,
+  void initState() {
+    super.initState();
+    // Sample data for different expense categories
+    expenseData = {
+      'Food': 250.0,
+      'Transportation': 120.0,
+      'Entertainment': 80.0,
+      'Shopping': 150.0,
     };
 
     // Calculate total amount
-    double totalAmount =
-        foodExpenses.values.reduce((sum, expense) => sum + expense);
+    totalAmount = expenseData.values.reduce((sum, expense) => sum + expense);
 
-    return Padding(
-      padding: const EdgeInsets.all(16.0),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          const Text(
-            'Expenses',
-            style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
-          ),
-          const SizedBox(height: 16),
-          for (var entry in foodExpenses.entries)
-            ExpenseCard(expenseName: entry.key, amount: entry.value),
-          const SizedBox(height: 16),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              const Text(
-                'Total',
-                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-              ),
-              Text(
-                '₹${totalAmount.toStringAsFixed(2)}',
-                style:
-                    const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-              ),
-            ],
-          ),
-        ],
-      ),
-    );
+    // Default selected report type
+    selectedReportType = 'Group Reports';
   }
-}
-
-class ExpenseCard extends StatelessWidget {
-  final String expenseName;
-  final double amount;
-
-  const ExpenseCard({
-    Key? key,
-    required this.expenseName,
-    required this.amount,
-  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    return Card(
-      elevation: 2,
-      margin: const EdgeInsets.only(bottom: 8),
-      child: ListTile(
-        title: Row(
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('Financial Reports'),
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back),
+          onPressed: () {
+            Navigator.of(context).pop();
+          },
+        ),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.share),
+            onPressed: () {
+              // Add the share functionality here
+              // For example, open a share dialog
+              // Share.share('Check out my financial reports!');
+            },
+          ),
+          const SizedBox(width: 16),
+        ],
+      ),
+      body: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Use Icons.fastfood for all expenses
-            const Icon(Icons.fastfood, color: Color.fromRGBO(30, 81, 85, 1)),
-            const SizedBox(width: 8),
-            Text(
-              expenseName,
-              style: const TextStyle(fontSize: 18),
+            const Text(
+              'Expense Overview',
+              style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
             ),
-            const Spacer(),
-            Text(
-              '₹${amount.toStringAsFixed(2)}',
-              style: const TextStyle(fontSize: 18),
+            const SizedBox(height: 8),
+            Expanded(
+              child: PieChart(
+                PieChartData(
+                  sectionsSpace: 4,
+                  centerSpaceRadius: 60,
+                  sections: _generatePieSections(expenseData),
+                  borderData: FlBorderData(
+                    show: false,
+                  ),
+                ),
+              ),
+            ),
+            const SizedBox(height: 16),
+            Center(
+              child: _buildReportTypeDropdown(),
+            ),
+            const SizedBox(height: 16),
+            Expanded(
+              child: Column(
+                children: _generateExpenseRows(expenseData),
+              ),
             ),
           ],
         ),
       ),
     );
   }
-}
 
-class SettleUpScreen extends StatelessWidget {
-  const SettleUpScreen({Key? key}) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    // Sample data for group members
-    List<String> groupMembers = ['Noopur', 'Hetvi', 'Sneha'];
-
-    // Total amount
-    double totalAmount = 50.0;
-
-    return Padding(
-      padding: const EdgeInsets.all(16.0),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          const SizedBox(height: 16), // Removed the Settle Up label
-          Text(
-            'Total Amount: ₹${totalAmount.toStringAsFixed(2)}',
-            style: const TextStyle(fontSize: 14, color: Colors.grey),
+  Widget _buildReportTypeDropdown() {
+    return DropdownButton<String>(
+      value: selectedReportType,
+      onChanged: (String? newValue) {
+        setState(() {
+          selectedReportType = newValue!;
+          // Update UI or fetch new data based on the selected report type
+        });
+      },
+      items: ['Group Reports', 'Personal Reports']
+          .map<DropdownMenuItem<String>>((String value) {
+        return DropdownMenuItem<String>(
+          value: value,
+          child: Text(
+            value,
+            style: const TextStyle(fontSize: 18),
           ),
-          const SizedBox(height: 16),
-          const Text(
-            'Group Members:',
-            style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-          ),
-          const SizedBox(height: 8),
-          // Display group members with person icons
-          for (var member in groupMembers)
-            if (member == 'Hetvi')
-              const HetviMemberTile()
-            else if (member == 'Noopur')
-              // Adding Noopur's owes
-              const NoopurMemberTile(owes: 25)
-            else
-              MemberTile(memberName: member),
-        ],
+        );
+      }).toList(),
+      style: const TextStyle(fontSize: 18),
+    );
+  }
+
+  List<Widget> _generateExpenseRows(Map<String, double> data) {
+    return data.entries.map((entry) {
+      return Padding(
+        padding: const EdgeInsets.symmetric(vertical: 8.0),
+        child: Row(
+          children: [
+            _buildCategoryColorBox(data.keys.toList().indexOf(entry.key)),
+            const SizedBox(width: 12),
+            Text(
+              entry.key,
+              style: const TextStyle(
+                fontSize: 16,
+                color: Colors.black, // Black text color
+              ),
+            ),
+            const Spacer(),
+            if (selectedReportType == 'Group Reports')
+              Text(
+                '${(entry.value / totalAmount * 100).toStringAsFixed(2)}%',
+                style: const TextStyle(fontSize: 16),
+              ),
+          ],
+        ),
+      );
+    }).toList();
+  }
+
+  Widget _buildCategoryColorBox(int index) {
+    return Container(
+      width: 24,
+      height: 24,
+      decoration: BoxDecoration(
+        color: _getCategoryColor(index),
+        shape: BoxShape.circle,
       ),
     );
   }
-}
 
-class MemberTile extends StatelessWidget {
-  final String memberName;
+  List<PieChartSectionData> _generatePieSections(Map<String, double> data) {
+    int index = 0;
+    return data.entries.map((entry) {
+      final isTouched = index == 0;
+      final double radius = isTouched ? 80 : 70; // Adjusted radius
 
-  const MemberTile({
-    Key? key,
-    required this.memberName,
-  }) : super(key: key);
+      final value = PieChartSectionData(
+        color: _getCategoryColor(index),
+        value: entry.value,
+        title: selectedReportType == 'Group Reports'
+            ? '${(entry.value / totalAmount * 100).toStringAsFixed(2)}%'
+            : '${(entry.value / totalAmount * 100).toStringAsFixed(2)}%', // Percentage inside chart for Personal Reports
+        radius: radius,
+        titleStyle: const TextStyle(
+          fontSize: 16,
+          fontWeight: FontWeight.bold,
+          color: Color(0xffffffff),
+        ),
+        showTitle: true, // Always show title
+      );
 
-  @override
-  Widget build(BuildContext context) {
-    return ListTile(
-      leading: const Icon(Icons.person),
-      title: Text(
-        memberName,
-        style: const TextStyle(fontSize: 16),
-      ),
-    );
+      index++;
+
+      return value;
+    }).toList();
   }
-}
 
-class HetviMemberTile extends StatelessWidget {
-  const HetviMemberTile({Key? key}) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    return const ListTile(
-      leading: Icon(Icons.person, color: Color.fromRGBO(30, 81, 85, 1)),
-      title: Row(
-        children: [
-          Text(
-            'Hetvi',
-            style: TextStyle(fontSize: 16),
-          ),
-          Spacer(),
-          Text(
-            'Gets back Rs 25.00',
-            style: TextStyle(
-                fontSize: 14, color: Colors.green), // Change color to green
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class NoopurMemberTile extends StatelessWidget {
-  final double owes;
-
-  const NoopurMemberTile({Key? key, required this.owes}) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    return ListTile(
-      leading: const Icon(Icons.person),
-      title: Row(
-        children: [
-          const Text(
-            'Noopur',
-            style: TextStyle(fontSize: 16),
-          ),
-          const Spacer(),
-          Text(
-            'Owes Rs ${owes.toStringAsFixed(2)}',
-            style: const TextStyle(
-                fontSize: 14, color: Colors.red), // Change color to red
-          ),
-        ],
-      ),
-    );
+  Color _getCategoryColor(int index) {
+    switch (index) {
+      case 0:
+        return const Color(0xff0293ee);
+      case 1:
+        return const Color(0xfff8b250);
+      case 2:
+        return const Color(0xff845bef);
+      case 3:
+        return const Color(0xffff6f61);
+      default:
+        return const Color(0xff0293ee);
+    }
   }
 }
