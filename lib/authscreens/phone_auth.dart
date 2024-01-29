@@ -34,3 +34,19 @@ Future<void> verifyPhone(String phoneNumber) async {
     codeAutoRetrievalTimeout: autoRetrievalTimeout,
   );
 }
+
+// Function to sign in with the verification code
+Future<void> signInWithPhoneNumber(
+    String verificationId, String smsCode) async {
+  try {
+    AuthCredential credential = PhoneAuthProvider.credential(
+      verificationId: verificationId,
+      smsCode: smsCode,
+    );
+    // Sign in with the credential
+    await FirebaseAuth.instance.signInWithCredential(credential);
+    print('Phone number verified and signed in successfully.');
+  } catch (e) {
+    print('Failed to verify phone number: $e');
+  }
+}
