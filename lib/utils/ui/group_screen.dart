@@ -221,7 +221,7 @@ class _GroupDetailsScreenState extends State<GroupDetailsScreen> {
             ),
             ExpenseCard(
               expenseName: 'Food',
-              amount: amountsPaid[0],
+              amount: amountsPaid[0], 
               icon: Icons.fastfood,
               onTap: () {
                 // Navigate to a new screen when Food expense is clicked

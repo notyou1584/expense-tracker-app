@@ -30,7 +30,7 @@ class MyApp extends StatelessWidget {
       theme: MyThemes.lightTheme,
       home: SplashScreen(),
       routes: {
-        '/auth': (_) => AuthGate(),
+        '/auth': (_) => PhoneAuthScreen(),
         '/home': (_) => ExpenseTrackerHomeScreen(),
         '/addexpense': (_) => ExpenseScreen(),
         '/group': (_) => GroupScreen(),

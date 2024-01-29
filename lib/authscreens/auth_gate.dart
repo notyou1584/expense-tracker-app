@@ -1,107 +1,137 @@
 import 'package:demo222/utils/ui/home.dart';
-import 'package:firebase_auth/firebase_auth.dart' hide EmailAuthProvider;
-import 'package:firebase_ui_auth/firebase_ui_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:firebase_ui_oauth_google/firebase_ui_oauth_google.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
-class AuthGate extends StatelessWidget {
-  const AuthGate({Key? key});
-
+class PhoneAuthScreen extends StatefulWidget {
   @override
-  Widget build(BuildContext context) {
-    return StreamBuilder<User?>(
-      stream: FirebaseAuth.instance.authStateChanges(),
-      builder: (context, snapshot) {
-        final user = snapshot.data;
-
-        if (user == null) {
-          return SignInScreen(
-            headerBuilder: (context, constraints, shrinkOffset) {
-              return Padding(
-                padding: const EdgeInsets.all(20),
-                child: AspectRatio(
-                  aspectRatio: 1,
-                  child:
-                      Image(image: AssetImage('assets/Images/Expense-o.jpg')),
-                ),
-              );
-            },
-            subtitleBuilder: (context, action) {
-              return Padding(
-                padding: const EdgeInsets.symmetric(vertical: 8.0),
-                child: action == AuthAction.signIn
-                    ? const Text('Welcome to FlutterFire, please sign in!')
-                    : const Text('Welcome to Flutterfire, please sign up!'),
-              );
-            },
-            footerBuilder: (context, action) {
-              return const Padding(
-                padding: EdgeInsets.only(top: 16),
-                child: Text(
-                  'By signing in, you agree to our terms and conditions.',
-                  style: TextStyle(color: Colors.grey),
-                ),
-              );
-            },
-            sideBuilder: (context, shrinkOffset) {
-              return Padding(
-                padding: const EdgeInsets.all(20),
-                child: AspectRatio(aspectRatio: 1, child: Placeholder()),
-              );
-            },
-          );
-        }
-
-        if (!user.emailVerified) {
-          return VerificationScreen(user: user);
-        }
-
-        return ExpenseTrackerHomeScreen();
-      },
-    );
-  }
+  _PhoneAuthScreenState createState() => _PhoneAuthScreenState();
 }
 
-class VerificationScreen extends StatelessWidget {
-  final User user;
+class _PhoneAuthScreenState extends State<PhoneAuthScreen> {
+  final TextEditingController _phoneNumberController = TextEditingController();
 
-  VerificationScreen({required this.user});
+  Future<void> verifyPhone(String phoneNumber) async {
+    final PhoneVerificationCompleted verified = (AuthCredential authResult) {
+      print('Phone number automatically verified: $authResult');
+    };
+
+    final PhoneVerificationFailed verificationFailed =
+        (FirebaseAuthException authException) {
+      print('Phone verification failed: ${authException.message}');
+    };
+
+    final PhoneCodeSent smsSent = (String verId, [int? forceResend]) {
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => CodeVerificationScreen(verificationId: verId),
+        ),
+      );
+    };
+
+    final PhoneCodeAutoRetrievalTimeout autoRetrievalTimeout = (String verId) {
+      print('Auto retrieval timeout. Verification ID: $verId');
+    };
+
+    await FirebaseAuth.instance.verifyPhoneNumber(
+      phoneNumber: phoneNumber,
+      verificationCompleted: verified,
+      verificationFailed: verificationFailed,
+      codeSent: smsSent,
+      codeAutoRetrievalTimeout: autoRetrievalTimeout,
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Email Verification'),
+        title: Text('Phone Authentication'),
       ),
-      body: Center(
+      body: Padding(
+        padding: const EdgeInsets.all(16.0),
         child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            Text(
-              'Your email is not verified.',
-              style: TextStyle(fontSize: 18),
+            TextField(
+              controller: _phoneNumberController,
+              keyboardType: TextInputType.phone,
+              decoration: InputDecoration(
+                labelText: 'Phone Number',
+                prefixIcon: Icon(Icons.phone),
+              ),
             ),
-            SizedBox(height: 20),
+            SizedBox(height: 16.0),
             ElevatedButton(
-              onPressed: () async {
-                // Resend verification email
-                await user.sendEmailVerification();
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(
-                    content: Text(
-                        'Verification email sent. Please check your inbox.'),
-                  ),
+              onPressed: () {
+                verifyPhone(_phoneNumberController.text);
+              },
+              child: Text('Verify Phone Number'),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class CodeVerificationScreen extends StatefulWidget {
+  final String verificationId;
+
+  CodeVerificationScreen({required this.verificationId});
+
+  @override
+  _CodeVerificationScreenState createState() => _CodeVerificationScreenState();
+}
+
+class _CodeVerificationScreenState extends State<CodeVerificationScreen> {
+  final TextEditingController _smsCodeController = TextEditingController();
+
+  Future<void> signInWithPhoneNumber(
+      String verificationId, String smsCode) async {
+    try {
+      AuthCredential credential = PhoneAuthProvider.credential(
+        verificationId: verificationId,
+        smsCode: smsCode,
+      );
+      await FirebaseAuth.instance.signInWithCredential(credential);
+      print('Phone number verified and signed in successfully.');
+    } catch (e) {
+      print('Failed to verify phone number: $e');
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text('Verify Code'),
+      ),
+      body: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            TextField(
+              controller: _smsCodeController,
+              keyboardType: TextInputType.number,
+              decoration: InputDecoration(
+                labelText: 'SMS Code',
+                prefixIcon: Icon(Icons.lock),
+              ),
+            ),
+            SizedBox(height: 16.0),
+            ElevatedButton(
+              onPressed: () {
+                signInWithPhoneNumber(
+                    widget.verificationId, _smsCodeController.text);
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                      builder: (context) => ExpenseTrackerHomeScreen()),
                 );
               },
-              child: Text('Resend Verification Email'),
-            ),
-            SizedBox(height: 20),
-            ElevatedButton(
-              onPressed: () async {
-                // Sign out the user
-                await FirebaseAuth.instance.signOut();
-              },
-              child: Text('Sign Out'),
+              child: Text('Sign In'),
             ),
           ],
         ),
