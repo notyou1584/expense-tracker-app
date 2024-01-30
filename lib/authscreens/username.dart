@@ -1,3 +1,4 @@
+import 'package:demo222/utils/ui/home.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
@@ -48,6 +49,10 @@ class AddUsernameScreen extends StatelessWidget {
                       content: Text('Username saved successfully!'),
                     ),
                   );
+                  Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (context) => ExpenseTrackerHomeScreen()));
                 } else {
                   ScaffoldMessenger.of(context).showSnackBar(
                     SnackBar(
