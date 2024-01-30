@@ -6,4 +6,5 @@ class Routes {
   static const groupmain = '/groupmain';
   static const recent = '/recent';
   static const settings = '/settings';
+  static const username = '/username';
 }

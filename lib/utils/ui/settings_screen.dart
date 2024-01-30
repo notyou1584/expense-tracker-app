@@ -11,7 +11,7 @@ class SettingsScreen extends StatefulWidget {
 class _SettingsScreenState extends State<SettingsScreen> {
   bool _isDarkMode = false;
   bool _areNotificationsEnabled = true;
-  String _selectedCurrency = 'USD';
+  String _selectedCurrency = 'INR';
 
   @override
   Widget build(BuildContext context) {
@@ -32,7 +32,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
             title: 'Currency',
             value: _selectedCurrency,
             items: [
-              'USD',
+              'INR',
               'EUR',
               'GBP',
               'JPY',
@@ -47,7 +47,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
           ),
           const Divider(),
           _buildSwitchSettingItem(
-            title: 'Theme',
+            title: 'Theme: Light',
             value: _isDarkMode,
             onChanged: (value) {
               setState(() {

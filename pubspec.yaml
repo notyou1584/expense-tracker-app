@@ -49,6 +49,7 @@ dependencies:
   flutter_svg: ^2.0.9
   email_validator: ^2.1.17
   fl_chart: ^0.66.1
+  contacts_service: ^0.6.3
   
 git branch -M maingit branch -M maindev_dependencies:
   flutter_test:

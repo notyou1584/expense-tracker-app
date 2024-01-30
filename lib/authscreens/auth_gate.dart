@@ -190,7 +190,7 @@ class _CodeVerificationScreenState extends State<CodeVerificationScreen> {
                   String smsCode =
                       _controllers.map((controller) => controller.text).join();
                   signInWithPhoneNumber(widget.verificationId, smsCode);
-                  Navigator.pushReplacementNamed(context, '/home');
+                  Navigator.pushReplacementNamed(context, '/username');
                 },
                 child: Text('Verify Code'),
               ),

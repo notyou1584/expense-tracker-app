@@ -98,12 +98,6 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
             ),
             const Divider(),
             ListTile(
-              title: const Text('Reset Password'),
-              leading: const Icon(Icons.lock),
-              onTap: _resetPassword,
-            ),
-            const Divider(),
-            ListTile(
               title: const Text('Export Data'),
               leading: const Icon(Icons.file_download),
               onTap: () {

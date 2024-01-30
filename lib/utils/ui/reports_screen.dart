@@ -3,7 +3,6 @@
 import 'package:flutter/material.dart';
 import 'package:fl_chart/fl_chart.dart';
 
-
 class AnalysisScreen extends StatefulWidget {
   const AnalysisScreen({Key? key}) : super(key: key);
 
@@ -38,6 +37,7 @@ class _AnalysisScreenState extends State<AnalysisScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        automaticallyImplyLeading: false,
         title: const Text('Financial Reports'),
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
@@ -110,7 +110,7 @@ class _AnalysisScreenState extends State<AnalysisScreen> {
           value: value,
           child: Text(
             value,
-            style: const TextStyle(fontSize: 18),
+            style: const TextStyle(fontSize: 18, color: Colors.black),
           ),
         );
       }).toList(),

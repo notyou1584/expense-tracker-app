@@ -10,9 +10,6 @@ class AddUsernameScreen extends StatelessWidget {
         'username': username,
         // You can add more fields here if needed
       });
-
-      // Optionally, you can navigate to another screen after saving the username
-      // Navigator.pop(context);
     } catch (e) {
       print('Error saving username: $e');
     }
@@ -22,13 +19,15 @@ class AddUsernameScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Add Username'),
+        automaticallyImplyLeading: false,
+        title: Center(child: Text('Add Username')),
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
+            SizedBox(height: 80.0),
             TextField(
               controller: _usernameController,
               decoration: InputDecoration(
@@ -38,6 +37,8 @@ class AddUsernameScreen extends StatelessWidget {
             ),
             SizedBox(height: 16.0),
             ElevatedButton(
+              style: ElevatedButton.styleFrom(
+                  backgroundColor: Color.fromRGBO(30, 81, 85, 1)),
               onPressed: () {
                 String username = _usernameController.text.trim();
                 if (username.isNotEmpty) {
@@ -55,7 +56,12 @@ class AddUsernameScreen extends StatelessWidget {
                   );
                 }
               },
-              child: Text('Save Username'),
+              child: Text(
+                'Save Username',
+                style: TextStyle(
+                  color: Colors.white, // Change text color here
+                ),
+              ),
             ),
           ],
         ),

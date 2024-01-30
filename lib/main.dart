@@ -1,6 +1,7 @@
 //import 'package:demo222/authscreens/auth_gate.dart';
 import 'package:demo222/authscreens/auth_gate.dart';
 import 'package:demo222/authscreens/firebase_options.dart';
+import 'package:demo222/authscreens/username.dart';
 import 'package:demo222/utils/theme/app_theme.dart';
 import 'package:demo222/utils/ui/expense_add.dart';
 import 'package:demo222/utils/ui/group_screen.dart';
@@ -35,6 +36,7 @@ class MyApp extends StatelessWidget {
         '/addexpense': (_) => ExpenseScreen(),
         '/group': (_) => GroupScreen(),
         '/setings': (_) => SettingsScreen(),
+        '/username': (_) => AddUsernameScreen(),
       },
     );
   }
