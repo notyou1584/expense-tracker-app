@@ -9,8 +9,10 @@ class PhoneAuthScreen extends StatefulWidget {
 
 class _PhoneAuthScreenState extends State<PhoneAuthScreen> {
   final TextEditingController _phoneNumberController = TextEditingController();
+  String _selectedCountryCode = "+91";
 
-  Future<void> verifyPhone(String phoneNumber) async {
+  Future<void> verifyPhone() async {
+    String phoneNumber = _selectedCountryCode + _phoneNumberController.text;
     final PhoneVerificationCompleted verified = (AuthCredential authResult) {
       print('Phone number automatically verified: $authResult');
     };
@@ -45,31 +47,63 @@ class _PhoneAuthScreenState extends State<PhoneAuthScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text('Phone Authentication'),
-      ),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
-            TextField(
-              controller: _phoneNumberController,
-              keyboardType: TextInputType.phone,
-              decoration: InputDecoration(
-                labelText: 'Phone Number',
-                prefixIcon: Icon(Icons.phone),
-              ),
+      body: Column(
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          SizedBox(height: 20),
+          Image(
+            image: AssetImage('Images/Expense-o.jpg'),
+            height: 200,
+          ),
+          SizedBox(height: 20),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 20.0),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                DropdownButton<String>(
+                  value: _selectedCountryCode,
+                  onChanged: (String? newValue) {
+                    setState(() {
+                      _selectedCountryCode = newValue!;
+                    });
+                  },
+                  items: <String>[
+                    '+1',
+                    '+91',
+                    '+44',
+                    '+61'
+                  ] // Example country codes
+                      .map<DropdownMenuItem<String>>((String value) {
+                    return DropdownMenuItem<String>(
+                      value: value,
+                      child: Text(value),
+                    );
+                  }).toList(),
+                ),
+                Expanded(
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 20.0),
+                    child: TextField(
+                      controller: _phoneNumberController,
+                      keyboardType: TextInputType.phone,
+                      decoration: InputDecoration(
+                        labelText: 'Enter Phone Number',
+                      ),
+                    ),
+                  ),
+                ),
+              ],
             ),
-            SizedBox(height: 16.0),
-            ElevatedButton(
-              onPressed: () {
-                verifyPhone(_phoneNumberController.text);
-              },
-              child: Text('Verify Phone Number'),
-            ),
-          ],
-        ),
+          ),
+          SizedBox(height: 20),
+          ElevatedButton(
+            onPressed: () {
+              verifyPhone();
+            },
+            child: Text('Verify Phone Number'),
+          ),
+        ],
       ),
     );
   }
@@ -85,7 +119,37 @@ class CodeVerificationScreen extends StatefulWidget {
 }
 
 class _CodeVerificationScreenState extends State<CodeVerificationScreen> {
-  final TextEditingController _smsCodeController = TextEditingController();
+  List<TextEditingController> _controllers = [];
+  List<FocusNode> _focusNodes = [];
+  late int _currentIndex;
+
+  @override
+  void initState() {
+    super.initState();
+    _currentIndex = 0;
+    _initializeControllers();
+  }
+
+  @override
+  void dispose() {
+    _controllers.forEach((controller) => controller.dispose());
+    _focusNodes.forEach((node) => node.dispose());
+    super.dispose();
+  }
+
+  void _initializeControllers() {
+    for (int i = 0; i < 6; i++) {
+      TextEditingController controller = TextEditingController();
+      FocusNode focusNode = FocusNode();
+      _controllers.add(controller);
+      _focusNodes.add(focusNode);
+      controller.addListener(() {
+        if (controller.text.isNotEmpty && i < 5) {
+          _focusNodes[i + 1].requestFocus();
+        }
+      });
+    }
+  }
 
   Future<void> signInWithPhoneNumber(
       String verificationId, String smsCode) async {
@@ -105,35 +169,56 @@ class _CodeVerificationScreenState extends State<CodeVerificationScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Verify Code'),
+        title: Text('Expense-O'),
       ),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
-            TextField(
-              controller: _smsCodeController,
-              keyboardType: TextInputType.number,
-              decoration: InputDecoration(
-                labelText: 'SMS Code',
-                prefixIcon: Icon(Icons.lock),
+      body: Center(
+        child: Padding(
+          padding: const EdgeInsets.all(20.0),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: List.generate(
+                  6,
+                  (index) => _buildCodeBox(index),
+                ),
               ),
-            ),
-            SizedBox(height: 16.0),
-            ElevatedButton(
-              onPressed: () {
-                signInWithPhoneNumber(
-                    widget.verificationId, _smsCodeController.text);
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                      builder: (context) => ExpenseTrackerHomeScreen()),
-                );
-              },
-              child: Text('Sign In'),
-            ),
-          ],
+              SizedBox(height: 20),
+              ElevatedButton(
+                onPressed: () {
+                  String smsCode =
+                      _controllers.map((controller) => controller.text).join();
+                  signInWithPhoneNumber(widget.verificationId, smsCode);
+                  Navigator.pushReplacementNamed(context, '/home');
+                },
+                child: Text('Verify Code'),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildCodeBox(int index) {
+    return SizedBox(
+      width: 50,
+      height: 50,
+      child: TextField(
+        controller: _controllers[index],
+        focusNode: _focusNodes[index],
+        keyboardType: TextInputType.number,
+        textAlign: TextAlign.center,
+        maxLength: 1,
+        onChanged: (String value) {
+          if (value.isNotEmpty && index < 5) {
+            _focusNodes[index + 1].requestFocus();
+          }
+        },
+        decoration: InputDecoration(
+          counter: Offstage(), // Hide character counter
+          border: OutlineInputBorder(),
         ),
       ),
     );

@@ -90,6 +90,8 @@ class _GroupScreenState extends State<GroupScreen> {
               ),
             ),
             const SizedBox(height: 16),
+
+            
             Expanded(
               child: ListView.builder(
                 itemCount: filteredGroups.length,
