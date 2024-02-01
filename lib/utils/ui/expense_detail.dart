@@ -50,7 +50,7 @@ class _GroupDetailsScreenState extends State<GroupDetailsScreen> {
             Navigator.push(
               context,
               MaterialPageRoute(
-                builder: (context) => GroupExpenseForm(userId: widget.userId),
+                builder: (context) => ExpenseForm(userId: widget.userId),
               ),
             );
           },
@@ -267,228 +267,228 @@ class NoopurMemberTile extends StatelessWidget {
   }
 }
 
-class GroupExpenseForm extends StatefulWidget {
-  final String? userId;
-  const GroupExpenseForm({Key? key, required this.userId}) : super(key: key);
+// class GroupExpenseForm extends StatefulWidget {
+//   final String? userId;
+//   const GroupExpenseForm({Key? key, required this.userId}) : super(key: key);
 
-  @override
-  // ignore: library_private_types_in_public_api
-  _GroupExpenseFormState createState() => _GroupExpenseFormState();
-}
+//   @override
+//   // ignore: library_private_types_in_public_api
+//   _GroupExpenseFormState createState() => _GroupExpenseFormState();
+// }
 
-class _GroupExpenseFormState extends State<GroupExpenseForm> {
-  final _formKey = GlobalKey<FormState>();
-  late TextEditingController _amountController;
-  final _descriptionController = TextEditingController();
-  String _selectedCurrency = 'INR'; // Set default currency
-  String _selectedCategory = 'Food';
-  DateTime _selectedDate = DateTime.now();
-  String paidByText = 'Select Paid By';
-  String selectedSplitAmong = 'Select Split Among';
-  String groupName = '';
-  String selectedGroupOption = 'Select Group';
+// class _GroupExpenseFormState extends State<GroupExpenseForm> {
+//   final _formKey = GlobalKey<FormState>();
+//   late TextEditingController _amountController;
+//   final _descriptionController = TextEditingController();
+//   String _selectedCurrency = 'INR'; // Set default currency
+//   String _selectedCategory = 'Food';
+//   DateTime _selectedDate = DateTime.now();
+//   String paidByText = 'Select Paid By';
+//   String selectedSplitAmong = 'Select Split Among';
+//   String groupName = '';
+//   String selectedGroupOption = 'Select Group';
 
-  List<String> existingGroups = ['Group 1', 'Group 2', 'Group 3'];
+//   List<String> existingGroups = ['Group 1', 'Group 2', 'Group 3'];
 
-  @override
-  void initState() {
-    super.initState();
-    _amountController = TextEditingController();
-  }
+//   @override
+//   void initState() {
+//     super.initState();
+//     _amountController = TextEditingController();
+//   }
 
-  @override
-  Widget build(BuildContext context) {
-    String userId = widget.userId ?? '';
-    final format = DateFormat("dd-MM-yyyy");
+//   @override
+//   Widget build(BuildContext context) {
+//     String userId = widget.userId ?? '';
+//     final format = DateFormat("dd-MM-yyyy");
 
-    return Padding(
-      padding: const EdgeInsets.all(16.0),
-      child: Form(
-        key: _formKey,
-        child: Column(
-          children: [
-            DropdownButton<String>(
-              value: selectedGroupOption,
-              onChanged: (String? newValue) {
-                setState(() {
-                  selectedGroupOption = newValue!;
-                  if (newValue == 'Add a New Group') {
-                    // Handle logic for adding a new group
-                    // You can show a dialog or navigate to a new screen
-                    // to create a new group
-                  }
-                });
-              },
-              items: ['Select Group', ...existingGroups, 'Add a New Group']
-                  .map<DropdownMenuItem<String>>(
-                    (String value) => DropdownMenuItem<String>(
-                      value: value,
-                      child: Text(value),
-                    ),
-                  )
-                  .toList(),
-            ),
-            if (selectedGroupOption == 'Add a New Group')
-              TextFormField(
-                decoration: InputDecoration(labelText: 'New Group Name'),
-                onChanged: (value) {
-                  groupName = value;
-                },
-              ),
-            TextFormField(
-              controller: _amountController,
-              keyboardType: TextInputType.number,
-              decoration: InputDecoration(labelText: 'Amount'),
-              validator: (value) {
-                if (value == null || value.isEmpty) {
-                  return 'Please enter the amount';
-                }
-                return null;
-              },
-            ),
-            SizedBox(height: 16),
-            DropdownSearch<String>(
-              items: ['USD', 'EUR', 'GBP', 'INR'],
-              onChanged: (value) {
-                setState(() {
-                  _selectedCurrency = value!;
-                });
-              },
-              selectedItem: _selectedCurrency,
-            ),
-            SizedBox(height: 16),
-            TextFormField(
-              controller: _descriptionController,
-              decoration: InputDecoration(labelText: 'Description'),
-              validator: (value) {
-                if (value == null || value.isEmpty) {
-                  return 'Please enter the description';
-                }
-                return null;
-              },
-            ),
-            SizedBox(height: 16),
-            DropdownSearch<String>(
-              items: ['Food', 'Transportation', 'Shopping'],
-              onChanged: (value) {
-                setState(() {
-                  _selectedCategory = value!;
-                });
-              },
-              selectedItem: _selectedCategory,
-            ),
-            SizedBox(height: 16),
-            DateTimeField(
-              format: format,
-              initialValue: _selectedDate,
-              onShowPicker: (context, currentValue) async {
-                final date = await showDatePicker(
-                  context: context,
-                  initialDate: currentValue ?? DateTime.now(),
-                  firstDate: DateTime(2000),
-                  lastDate: DateTime(2101),
-                );
-                if (date != null) {
-                  return date;
-                } else {
-                  return currentValue;
-                }
-              },
-              decoration: InputDecoration(labelText: 'Date'),
-              onChanged: (date) {
-                setState(() {
-                  _selectedDate = date ?? DateTime.now();
-                });
-              },
-            ),
-            Row(
-              children: [
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      const SizedBox(height: 4),
-                      DropdownButton<String>(
-                        value: paidByText,
-                        onChanged: (String? newValue) {
-                          setState(() {
-                            paidByText = newValue!;
-                          });
-                        },
-                        items: <String>[
-                          'Select Paid By',
-                          'Person 1',
-                          'Person 2',
-                          'Person 3'
-                        ]
-                            .map<DropdownMenuItem<String>>(
-                              (String value) => DropdownMenuItem<String>(
-                                value: value,
-                                child: Text(value),
-                              ),
-                            )
-                            .toList(),
-                      ),
-                    ],
-                  ),
-                ),
-                const SizedBox(width: 8),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      const SizedBox(height: 4),
-                      DropdownButton<String>(
-                        value: selectedSplitAmong,
-                        onChanged: (String? newValue) {
-                          setState(() {
-                            selectedSplitAmong = newValue!;
-                          });
-                        },
-                        items: <String>[
-                          'Select Split Among',
-                          'Person 1',
-                          'Person 2',
-                          'Person 3'
-                        ]
-                            .map<DropdownMenuItem<String>>(
-                              (String value) => DropdownMenuItem<String>(
-                                value: value,
-                                child: Text(value),
-                              ),
-                            )
-                            .toList(),
-                      ),
-                    ],
-                  ),
-                ),
-              ],
-            ),
-            SizedBox(height: 16),
-            ElevatedButton(
-              style: ElevatedButton.styleFrom(
-                  backgroundColor: Color.fromRGBO(30, 81, 85, 1)),
-              onPressed: () async {
-                if (_formKey.currentState!.validate()) {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(
-                      content: Text('Expense added successfully'),
-                    ),
-                  );
-                  Navigator.pop(context);
-                }
-              },
-              child: const Text(
-                'Add Expense',
-                style: TextStyle(
-                  fontSize: 18,
-                  color: Colors.white,
-                ),
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
+//     return Padding(
+//       padding: const EdgeInsets.all(16.0),
+//       child: Form(
+//         key: _formKey,
+//         child: Column(
+//           children: [
+//             DropdownButton<String>(
+//               value: selectedGroupOption,
+//               onChanged: (String? newValue) {
+//                 setState(() {
+//                   selectedGroupOption = newValue!;
+//                   if (newValue == 'Add a New Group') {
+//                     // Handle logic for adding a new group
+//                     // You can show a dialog or navigate to a new screen
+//                     // to create a new group
+//                   }
+//                 });
+//               },
+//               items: ['Select Group', ...existingGroups, 'Add a New Group']
+//                   .map<DropdownMenuItem<String>>(
+//                     (String value) => DropdownMenuItem<String>(
+//                       value: value,
+//                       child: Text(value),
+//                     ),
+//                   )
+//                   .toList(),
+//             ),
+//             if (selectedGroupOption == 'Add a New Group')
+//               TextFormField(
+//                 decoration: InputDecoration(labelText: 'New Group Name'),
+//                 onChanged: (value) {
+//                   groupName = value;
+//                 },
+//               ),
+//             TextFormField(
+//               controller: _amountController,
+//               keyboardType: TextInputType.number,
+//               decoration: InputDecoration(labelText: 'Amount'),
+//               validator: (value) {
+//                 if (value == null || value.isEmpty) {
+//                   return 'Please enter the amount';
+//                 }
+//                 return null;
+//               },
+//             ),
+//             SizedBox(height: 16),
+//             DropdownSearch<String>(
+//               items: ['USD', 'EUR', 'GBP', 'INR'],
+//               onChanged: (value) {
+//                 setState(() {
+//                   _selectedCurrency = value!;
+//                 });
+//               },
+//               selectedItem: _selectedCurrency,
+//             ),
+//             SizedBox(height: 16),
+//             TextFormField(
+//               controller: _descriptionController,
+//               decoration: InputDecoration(labelText: 'Description'),
+//               validator: (value) {
+//                 if (value == null || value.isEmpty) {
+//                   return 'Please enter the description';
+//                 }
+//                 return null;
+//               },
+//             ),
+//             SizedBox(height: 16),
+//             DropdownSearch<String>(
+//               items: ['Food', 'Transportation', 'Shopping'],
+//               onChanged: (value) {
+//                 setState(() {
+//                   _selectedCategory = value!;
+//                 });
+//               },
+//               selectedItem: _selectedCategory,
+//             ),
+//             SizedBox(height: 16),
+//             DateTimeField(
+//               format: format,
+//               initialValue: _selectedDate,
+//               onShowPicker: (context, currentValue) async {
+//                 final date = await showDatePicker(
+//                   context: context,
+//                   initialDate: currentValue ?? DateTime.now(),
+//                   firstDate: DateTime(2000),
+//                   lastDate: DateTime(2101),
+//                 );
+//                 if (date != null) {
+//                   return date;
+//                 } else {
+//                   return currentValue;
+//                 }
+//               },
+//               decoration: InputDecoration(labelText: 'Date'),
+//               onChanged: (date) {
+//                 setState(() {
+//                   _selectedDate = date ?? DateTime.now();
+//                 });
+//               },
+//             ),
+//             Row(
+//               children: [
+//                 Expanded(
+//                   child: Column(
+//                     crossAxisAlignment: CrossAxisAlignment.start,
+//                     children: [
+//                       const SizedBox(height: 4),
+//                       DropdownButton<String>(
+//                         value: paidByText,
+//                         onChanged: (String? newValue) {
+//                           setState(() {
+//                             paidByText = newValue!;
+//                           });
+//                         },
+//                         items: <String>[
+//                           'Select Paid By',
+//                           'Person 1',
+//                           'Person 2',
+//                           'Person 3'
+//                         ]
+//                             .map<DropdownMenuItem<String>>(
+//                               (String value) => DropdownMenuItem<String>(
+//                                 value: value,
+//                                 child: Text(value),
+//                               ),
+//                             )
+//                             .toList(),
+//                       ),
+//                     ],
+//                   ),
+//                 ),
+//                 const SizedBox(width: 8),
+//                 Expanded(
+//                   child: Column(
+//                     crossAxisAlignment: CrossAxisAlignment.start,
+//                     children: [
+//                       const SizedBox(height: 4),
+//                       DropdownButton<String>(
+//                         value: selectedSplitAmong,
+//                         onChanged: (String? newValue) {
+//                           setState(() {
+//                             selectedSplitAmong = newValue!;
+//                           });
+//                         },
+//                         items: <String>[
+//                           'Select Split Among',
+//                           'Person 1',
+//                           'Person 2',
+//                           'Person 3'
+//                         ]
+//                             .map<DropdownMenuItem<String>>(
+//                               (String value) => DropdownMenuItem<String>(
+//                                 value: value,
+//                                 child: Text(value),
+//                               ),
+//                             )
+//                             .toList(),
+//                       ),
+//                     ],
+//                   ),
+//                 ),
+//               ],
+//             ),
+//             SizedBox(height: 16),
+//             ElevatedButton(
+//               style: ElevatedButton.styleFrom(
+//                   backgroundColor: Color.fromRGBO(30, 81, 85, 1)),
+//               onPressed: () async {
+//                 if (_formKey.currentState!.validate()) {
+//                   ScaffoldMessenger.of(context).showSnackBar(
+//                     SnackBar(
+//                       content: Text('Expense added successfully'),
+//                     ),
+//                   );
+//                   Navigator.pop(context);
+//                 }
+//               },
+//               child: const Text(
+//                 'Add Expense',
+//                 style: TextStyle(
+//                   fontSize: 18,
+//                   color: Colors.white,
+//                 ),
+//               ),
+//             ),
+//           ],
+//         ),
+//       ),
+//     );
+//   }
+// }
