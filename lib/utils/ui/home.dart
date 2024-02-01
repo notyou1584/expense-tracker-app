@@ -1,4 +1,5 @@
 import 'package:demo222/routes.dart';
+import 'package:demo222/utils/ui/expense_add.dart';
 import 'package:demo222/utils/ui/home_screen.dart';
 import 'package:demo222/utils/ui/profile_screen.dart';
 import 'package:demo222/utils/ui/reports_screen.dart';
@@ -6,6 +7,8 @@ import 'package:flutter/material.dart';
 import 'package:demo222/utils/ui/group_screen.dart';
 
 class ExpenseTrackerHomeScreen extends StatefulWidget {
+  final String? userId;
+  const ExpenseTrackerHomeScreen({Key? key, this.userId}) : super(key: key);
   @override
   _ExpenseTrackerHomeScreenState createState() =>
       _ExpenseTrackerHomeScreenState();
@@ -29,12 +32,16 @@ class _ExpenseTrackerHomeScreenState extends State<ExpenseTrackerHomeScreen> {
 
   @override
   Widget build(BuildContext context) {
-    print(Theme.of(context).primaryColor);
     return Scaffold(
       floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
       floatingActionButton: FloatingActionButton(
         onPressed: () {
-          Navigator.of(context).pushNamed(Routes.addexpense);
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => ExpenseForm(userId: widget.userId),
+            ),
+          );
         },
         child: Icon(Icons.add),
       ),

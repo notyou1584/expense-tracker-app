@@ -33,7 +33,6 @@ class MyApp extends StatelessWidget {
       routes: {
         '/auth': (_) => PhoneAuthScreen(),
         '/home': (_) => ExpenseTrackerHomeScreen(),
-        '/addexpense': (_) => ExpenseScreen(),
         '/group': (_) => GroupScreen(),
         '/setings': (_) => SettingsScreen(),
         '/username': (_) => AddUsernameScreen(),
