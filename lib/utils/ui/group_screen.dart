@@ -1,162 +1,105 @@
-// ignore_for_file: library_private_types_in_public_api
-
-import 'package:demo222/utils/ui/new_group.dart';
-import 'package:flutter/material.dart';
+    import 'package:cloud_firestore/cloud_firestore.dart';
+    import 'package:demo222/utils/ui/create_group.dart';
 import 'package:demo222/utils/ui/expense_detail.dart';
+    import 'package:flutter/material.dart';
 
-class GroupScreen extends StatefulWidget {
-  const GroupScreen({Key? key}) : super(key: key);
-
-  @override
-  _GroupScreenState createState() => _GroupScreenState();
-}
-
-class _GroupScreenState extends State<GroupScreen> {
-  final TextEditingController _searchController = TextEditingController();
-  List<String> filteredGroups = ['Group 1', 'Group 2', 'Group 3', 'Group 4'];
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        automaticallyImplyLeading: false,
-        title: const Center(child: Text('Groups')),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.notifications),
-            onPressed: () {
-              // Handle notification bell action
-            },
+    class GroupListScreen extends StatelessWidget {
+      @override
+      Widget build(BuildContext context) {
+        return Scaffold(
+          appBar: AppBar(
+            title: Text('Group List'),
           ),
-        ],
-      ),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Container(
-              width: double.infinity,
-              height: 40,
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(8),
-                border: Border.all(color: Colors.grey),
-              ),
-              child: Row(
-                children: [
-                  const Icon(Icons.search),
-                  const SizedBox(width: 8),
-                  Expanded(
-                    child: TextField(
-                      controller: _searchController,
-                      onChanged: (value) {
-                        setState(() {
-                          filteredGroups = [
-                            'Group 1',
-                            'Group 2',
-                            'Group 3',
-                            'Group 4'
-                          ]
-                              .where((group) => group
-                                  .toLowerCase()
-                                  .contains(value.toLowerCase()))
-                              .toList();
-                        });
-                      },
-                      decoration: const InputDecoration(
-                        hintText: 'Search groups...',
-                        border: InputBorder.none,
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            const SizedBox(height: 16),
-            Expanded(
-              child: ListView.builder(
-                itemCount: filteredGroups.length,
-                itemBuilder: (context, index) {
-                  return GroupCard(name: filteredGroups[index]);
-                },
-              ),
-            ),
-            Center(
-              child: ElevatedButton(
-                onPressed: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => CreateGroupScreen(),
-                    ),
-                  );
-                  // Handle starting a new group
-                },
-                style: ElevatedButton.styleFrom(
-                  foregroundColor: Colors.black,
-                  backgroundColor: Colors.white,
-                  side: const BorderSide(color: Colors.black),
-                  padding: const EdgeInsets.symmetric(
-                    vertical: 14.0,
-                    horizontal: 28.0,
-                  ),
-                ),
-                child: const Text(
-                  'Start a New Group',
-                  style: TextStyle(fontSize: 18),
-                ),
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-class GroupCard extends StatelessWidget {
-  final String name;
-
-  const GroupCard({Key? key, required this.name}) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: () {
-        Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (context) => GroupDetailsScreen(),
-          ),
-        );
-      },
-      child: Card(
-        elevation: 2,
-        margin: const EdgeInsets.symmetric(vertical: 8),
-        child: Padding(
-          padding: const EdgeInsets.all(16),
-          child: Row(
+          body: Column(
             children: [
-              Container(
-                width: 50,
-                height: 50,
-                decoration: const BoxDecoration(
-                  color: Color.fromRGBO(30, 81, 85, 1),
-                  borderRadius: BorderRadius.all(Radius.circular(25)),
+              Padding(
+                padding: EdgeInsets.all(16.0),
+                child: ElevatedButton(
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => CreateGroupScreen(),
+                      ),
+                    );
+                    // Handle starting a new group
+                  },
+                  style: ElevatedButton.styleFrom(
+                    side: BorderSide(color: Colors.black),
+                    padding: EdgeInsets.symmetric(vertical: 14.0, horizontal: 28.0),
+                    textStyle: TextStyle(fontSize: 18),
+                  ),
+                  child: Text('Start a New Group'),
                 ),
-                child: const Icon(Icons.group, color: Colors.white),
               ),
-              const SizedBox(width: 16),
-              Text(
-                name,
-                style:
-                    const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+              Expanded(
+                child: StreamBuilder(
+                  stream:
+                      FirebaseFirestore.instance.collection('groups').snapshots(),
+                  builder: (context, AsyncSnapshot<QuerySnapshot> snapshot) {
+                    if (snapshot.connectionState == ConnectionState.waiting) {
+                      return Center(child: CircularProgressIndicator());
+                    }
+                    if (snapshot.hasError) {
+                      return Center(child: Text('Error: ${snapshot.error}'));
+                    }
+                    final groups = snapshot.data!.docs;
+                    if (groups.isEmpty) {
+                      return Center(child: Text('No groups found.'));
+                    }
+                    return ListView.builder(
+                      itemCount: groups.length,
+                      itemBuilder: (context, index) {
+                        final group = groups[index];
+                        final groupName = group['groupName'];
+                        return GestureDetector(
+                          onTap: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) =>
+                                    GroupDetailsScreen(groupId: group.id),
+                              ),
+                            );
+                          },
+                          child: Card(
+                            elevation: 2,
+                            margin: const EdgeInsets.symmetric(vertical: 8),
+                            child: Padding(
+                              padding: const EdgeInsets.all(16),
+                              child: Row(
+                                children: [
+                                  Container(
+                                    width: 50,
+                                    height: 50,
+                                    decoration: const BoxDecoration(
+                                      color: Color.fromRGBO(30, 81, 85, 1),
+                                      borderRadius:
+                                          BorderRadius.all(Radius.circular(25)),
+                                    ),
+                                    child: const Icon(Icons.group,
+                                        color: Colors.white),
+                                  ),
+                                  const SizedBox(width: 16),
+                                  Text(
+                                    groupName,
+                                    style: const TextStyle(
+                                        fontSize: 18, fontWeight: FontWeight.bold),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+                        );
+                      },
+                    );
+                  },
+                ),
               ),
             ],
           ),
-        ),
-      ),
-    );
-  }
-}
+        );
+      }
+    }
+
+    

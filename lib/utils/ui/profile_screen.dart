@@ -1,4 +1,3 @@
-import 'package:demo222/routes.dart';
 import 'package:demo222/utils/ui/settings_screen.dart';
 import 'package:flutter/material.dart';
 
@@ -23,11 +22,7 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
   }
 
   // Function to handle password reset
-  Future<void> _resetPassword() async {
-    // Add your logic to send a password reset email
-    // This is just a placeholder function
-    // You should replace it with the actual logic to send a password reset email.
-  }
+  
 
   @override
   Widget build(BuildContext context) {

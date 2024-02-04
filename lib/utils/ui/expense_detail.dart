@@ -1,12 +1,14 @@
-import 'package:datetime_picker_formfield_new/datetime_picker_formfield.dart';
-import 'package:demo222/utils/ui/expense_add.dart';
-import 'package:dropdown_search/dropdown_search.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:demo222/utils/ui/addgroup_expense.dart';
+import 'package:demo222/utils/ui/editandicons.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
 class GroupDetailsScreen extends StatefulWidget {
   final String? userId;
-  const GroupDetailsScreen({Key? key, this.userId}) : super(key: key);
+  final String groupId; // Add groupId parameter
+  const GroupDetailsScreen({Key? key, this.userId, required this.groupId})
+      : super(key: key);
 
   @override
   State<GroupDetailsScreen> createState() => _GroupDetailsScreenState();
@@ -50,16 +52,16 @@ class _GroupDetailsScreenState extends State<GroupDetailsScreen> {
             Navigator.push(
               context,
               MaterialPageRoute(
-                builder: (context) => ExpenseForm(userId: widget.userId),
-              ),
+                  builder: (context) =>
+                      AddExpenseScreen(groupId: widget.groupId)),
             );
           },
           child: Text('Add Expense'),
         ),
-        body: const TabBarView(
+        body: TabBarView(
           children: [
-            FoodExpensesScreen(),
-            SettleUpScreen(), // New screen for Settle Up
+            GroupExpenseScreen(groupId: widget.groupId), // Pass groupId
+            SettleUpScreen(groupId: widget.groupId), // Pass groupId
             Center(child: Text('Reports Content')),
           ],
         ),
@@ -68,93 +70,82 @@ class _GroupDetailsScreenState extends State<GroupDetailsScreen> {
   }
 }
 
-class FoodExpensesScreen extends StatelessWidget {
-  const FoodExpensesScreen({Key? key}) : super(key: key);
+class GroupExpenseScreen extends StatelessWidget {
+  final String groupId;
+
+  GroupExpenseScreen({required this.groupId});
 
   @override
   Widget build(BuildContext context) {
-    // Sample food expenses data
-    Map<String, double> foodExpenses = {
-      'Coke': 20.0,
-      'Maggie': 30.0,
-    };
-
-    // Calculate total amount
-    double totalAmount =
-        foodExpenses.values.reduce((sum, expense) => sum + expense);
-
-    return Padding(
-      padding: const EdgeInsets.all(16.0),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          const Text(
-            'Expenses',
-            style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
-          ),
-          const SizedBox(height: 16),
-          for (var entry in foodExpenses.entries)
-            ExpenseCard(expenseName: entry.key, amount: entry.value),
-          const SizedBox(height: 16),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              const Text(
-                'Total',
-                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-              ),
-              Text(
-                '₹${totalAmount.toStringAsFixed(2)}',
-                style:
-                    const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-              ),
-            ],
-          ),
-        ],
+    return Scaffold(
+      appBar: AppBar(
+        title: Text('Group Expenses'),
       ),
-    );
-  }
-}
-
-class ExpenseCard extends StatelessWidget {
-  final String expenseName;
-  final double amount;
-
-  const ExpenseCard({
-    Key? key,
-    required this.expenseName,
-    required this.amount,
-  }) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    return Card(
-      elevation: 2,
-      margin: const EdgeInsets.only(bottom: 8),
-      child: ListTile(
-        title: Row(
-          children: [
-            // Use Icons.fastfood for all expenses
-            const Icon(Icons.fastfood, color: Color.fromRGBO(30, 81, 85, 1)),
-            const SizedBox(width: 8),
-            Text(
-              expenseName,
-              style: const TextStyle(fontSize: 18),
-            ),
-            const Spacer(),
-            Text(
-              '₹${amount.toStringAsFixed(2)}',
-              style: const TextStyle(fontSize: 18),
-            ),
-          ],
-        ),
+      body: StreamBuilder(
+        stream: FirebaseFirestore.instance
+            .collection('groups')
+            .doc(groupId)
+            .collection('expenses')
+            .snapshots(),
+        builder: (context, AsyncSnapshot<QuerySnapshot> snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return Center(child: CircularProgressIndicator());
+          }
+          if (snapshot.hasError) {
+            return Center(child: Text('Error: ${snapshot.error}'));
+          }
+          final expenses = snapshot.data!.docs;
+          if (expenses.isEmpty) {
+            return Center(child: Text('No expenses found for this group.'));
+          }
+          return ListView.builder(
+            itemCount: expenses.length,
+            itemBuilder: (context, index) {
+              final expense = expenses[index];
+              String formattedDate =
+                  DateFormat('dd MMMM yyyy').format(expense['date']);
+              return Card(
+                margin: EdgeInsets.symmetric(vertical: 8.0),
+                child: ListTile(
+                  contentPadding: EdgeInsets.all(20.0),
+                  dense: false,
+                  leading: Icon(
+                    categoryIcons[expense['category']] ?? Icons.category,
+                    size: 42.0,
+                  ),
+                  title: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(' ${expense['description']}'),
+                    ],
+                  ),
+                  trailing: Column(
+                    crossAxisAlignment: CrossAxisAlignment.end,
+                    children: [
+                      Text(
+                        ' ${expense['amount']} ${expense['currency']}',
+                        style: TextStyle(fontSize: 18.0, color: Colors.red),
+                      ),
+                      Text(
+                        ' ${formattedDate}',
+                        style: TextStyle(fontSize: 14.0),
+                      ),
+                    ],
+                  ),
+                ),
+              );
+            },
+          );
+        },
       ),
     );
   }
 }
 
 class SettleUpScreen extends StatelessWidget {
-  const SettleUpScreen({Key? key}) : super(key: key);
+  final String groupId;
+
+  const SettleUpScreen({Key? key, required this.groupId}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -266,229 +257,3 @@ class NoopurMemberTile extends StatelessWidget {
     );
   }
 }
-
-// class GroupExpenseForm extends StatefulWidget {
-//   final String? userId;
-//   const GroupExpenseForm({Key? key, required this.userId}) : super(key: key);
-
-//   @override
-//   // ignore: library_private_types_in_public_api
-//   _GroupExpenseFormState createState() => _GroupExpenseFormState();
-// }
-
-// class _GroupExpenseFormState extends State<GroupExpenseForm> {
-//   final _formKey = GlobalKey<FormState>();
-//   late TextEditingController _amountController;
-//   final _descriptionController = TextEditingController();
-//   String _selectedCurrency = 'INR'; // Set default currency
-//   String _selectedCategory = 'Food';
-//   DateTime _selectedDate = DateTime.now();
-//   String paidByText = 'Select Paid By';
-//   String selectedSplitAmong = 'Select Split Among';
-//   String groupName = '';
-//   String selectedGroupOption = 'Select Group';
-
-//   List<String> existingGroups = ['Group 1', 'Group 2', 'Group 3'];
-
-//   @override
-//   void initState() {
-//     super.initState();
-//     _amountController = TextEditingController();
-//   }
-
-//   @override
-//   Widget build(BuildContext context) {
-//     String userId = widget.userId ?? '';
-//     final format = DateFormat("dd-MM-yyyy");
-
-//     return Padding(
-//       padding: const EdgeInsets.all(16.0),
-//       child: Form(
-//         key: _formKey,
-//         child: Column(
-//           children: [
-//             DropdownButton<String>(
-//               value: selectedGroupOption,
-//               onChanged: (String? newValue) {
-//                 setState(() {
-//                   selectedGroupOption = newValue!;
-//                   if (newValue == 'Add a New Group') {
-//                     // Handle logic for adding a new group
-//                     // You can show a dialog or navigate to a new screen
-//                     // to create a new group
-//                   }
-//                 });
-//               },
-//               items: ['Select Group', ...existingGroups, 'Add a New Group']
-//                   .map<DropdownMenuItem<String>>(
-//                     (String value) => DropdownMenuItem<String>(
-//                       value: value,
-//                       child: Text(value),
-//                     ),
-//                   )
-//                   .toList(),
-//             ),
-//             if (selectedGroupOption == 'Add a New Group')
-//               TextFormField(
-//                 decoration: InputDecoration(labelText: 'New Group Name'),
-//                 onChanged: (value) {
-//                   groupName = value;
-//                 },
-//               ),
-//             TextFormField(
-//               controller: _amountController,
-//               keyboardType: TextInputType.number,
-//               decoration: InputDecoration(labelText: 'Amount'),
-//               validator: (value) {
-//                 if (value == null || value.isEmpty) {
-//                   return 'Please enter the amount';
-//                 }
-//                 return null;
-//               },
-//             ),
-//             SizedBox(height: 16),
-//             DropdownSearch<String>(
-//               items: ['USD', 'EUR', 'GBP', 'INR'],
-//               onChanged: (value) {
-//                 setState(() {
-//                   _selectedCurrency = value!;
-//                 });
-//               },
-//               selectedItem: _selectedCurrency,
-//             ),
-//             SizedBox(height: 16),
-//             TextFormField(
-//               controller: _descriptionController,
-//               decoration: InputDecoration(labelText: 'Description'),
-//               validator: (value) {
-//                 if (value == null || value.isEmpty) {
-//                   return 'Please enter the description';
-//                 }
-//                 return null;
-//               },
-//             ),
-//             SizedBox(height: 16),
-//             DropdownSearch<String>(
-//               items: ['Food', 'Transportation', 'Shopping'],
-//               onChanged: (value) {
-//                 setState(() {
-//                   _selectedCategory = value!;
-//                 });
-//               },
-//               selectedItem: _selectedCategory,
-//             ),
-//             SizedBox(height: 16),
-//             DateTimeField(
-//               format: format,
-//               initialValue: _selectedDate,
-//               onShowPicker: (context, currentValue) async {
-//                 final date = await showDatePicker(
-//                   context: context,
-//                   initialDate: currentValue ?? DateTime.now(),
-//                   firstDate: DateTime(2000),
-//                   lastDate: DateTime(2101),
-//                 );
-//                 if (date != null) {
-//                   return date;
-//                 } else {
-//                   return currentValue;
-//                 }
-//               },
-//               decoration: InputDecoration(labelText: 'Date'),
-//               onChanged: (date) {
-//                 setState(() {
-//                   _selectedDate = date ?? DateTime.now();
-//                 });
-//               },
-//             ),
-//             Row(
-//               children: [
-//                 Expanded(
-//                   child: Column(
-//                     crossAxisAlignment: CrossAxisAlignment.start,
-//                     children: [
-//                       const SizedBox(height: 4),
-//                       DropdownButton<String>(
-//                         value: paidByText,
-//                         onChanged: (String? newValue) {
-//                           setState(() {
-//                             paidByText = newValue!;
-//                           });
-//                         },
-//                         items: <String>[
-//                           'Select Paid By',
-//                           'Person 1',
-//                           'Person 2',
-//                           'Person 3'
-//                         ]
-//                             .map<DropdownMenuItem<String>>(
-//                               (String value) => DropdownMenuItem<String>(
-//                                 value: value,
-//                                 child: Text(value),
-//                               ),
-//                             )
-//                             .toList(),
-//                       ),
-//                     ],
-//                   ),
-//                 ),
-//                 const SizedBox(width: 8),
-//                 Expanded(
-//                   child: Column(
-//                     crossAxisAlignment: CrossAxisAlignment.start,
-//                     children: [
-//                       const SizedBox(height: 4),
-//                       DropdownButton<String>(
-//                         value: selectedSplitAmong,
-//                         onChanged: (String? newValue) {
-//                           setState(() {
-//                             selectedSplitAmong = newValue!;
-//                           });
-//                         },
-//                         items: <String>[
-//                           'Select Split Among',
-//                           'Person 1',
-//                           'Person 2',
-//                           'Person 3'
-//                         ]
-//                             .map<DropdownMenuItem<String>>(
-//                               (String value) => DropdownMenuItem<String>(
-//                                 value: value,
-//                                 child: Text(value),
-//                               ),
-//                             )
-//                             .toList(),
-//                       ),
-//                     ],
-//                   ),
-//                 ),
-//               ],
-//             ),
-//             SizedBox(height: 16),
-//             ElevatedButton(
-//               style: ElevatedButton.styleFrom(
-//                   backgroundColor: Color.fromRGBO(30, 81, 85, 1)),
-//               onPressed: () async {
-//                 if (_formKey.currentState!.validate()) {
-//                   ScaffoldMessenger.of(context).showSnackBar(
-//                     SnackBar(
-//                       content: Text('Expense added successfully'),
-//                     ),
-//                   );
-//                   Navigator.pop(context);
-//                 }
-//               },
-//               child: const Text(
-//                 'Add Expense',
-//                 style: TextStyle(
-//                   fontSize: 18,
-//                   color: Colors.white,
-//                 ),
-//               ),
-//             ),
-//           ],
-//         ),
-//       ),
-//     );
-//   }
-// }

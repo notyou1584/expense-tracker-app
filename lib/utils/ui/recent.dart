@@ -51,7 +51,7 @@ class ExpenseList extends StatelessWidget {
               margin: EdgeInsets.symmetric(vertical: 8.0),
               child: ListTile(
                 contentPadding:
-                    EdgeInsets.all(20.0), // Adjust the padding as needed
+                    EdgeInsets.all(20.0),
                 dense: false,
                 leading: Icon(
                   categoryIcons[expense.category] ?? Icons.category,

@@ -1,4 +1,4 @@
-import 'package:demo222/utils/ui/home.dart';
+
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
@@ -121,12 +121,10 @@ class CodeVerificationScreen extends StatefulWidget {
 class _CodeVerificationScreenState extends State<CodeVerificationScreen> {
   List<TextEditingController> _controllers = [];
   List<FocusNode> _focusNodes = [];
-  late int _currentIndex;
 
   @override
   void initState() {
     super.initState();
-    _currentIndex = 0;
     _initializeControllers();
   }
 

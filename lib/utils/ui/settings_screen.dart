@@ -73,6 +73,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
           _buildSettingItem(
             title: 'Help',
             onTap: () {
+              
               // Add functionality for the Help feature
               // Example: navigateToHelpScreen();
             },
