@@ -1,8 +1,8 @@
-import 'package:datetime_picker_formfield_new/datetime_picker_formfield.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:intl/intl.dart';
+import 'package:datetime_picker_formfield_new/datetime_picker_formfield.dart';
 
 class AddExpenseScreen extends StatefulWidget {
   final String groupId;
@@ -16,13 +16,21 @@ class AddExpenseScreen extends StatefulWidget {
 class _AddExpenseScreenState extends State<AddExpenseScreen> {
   final TextEditingController _amountController = TextEditingController();
   final TextEditingController _descriptionController = TextEditingController();
-  DateTime _selectedDate = DateTime.now();
-  final TextEditingController _categoryController =
-      TextEditingController(); // Controller for category
+  DateTime _selectedDate = DateTime.now(); // Initialize with current date
+  String? _selectedCategory; // Hold the selected category value
+
+  final List<String> categories = [
+    'Food',
+    'Transport',
+    'Entertainment',
+    'Utilities',
+    'Others'
+  ]; // Sample categories
 
   @override
   Widget build(BuildContext context) {
-    final format = DateFormat("dd-mm-yyyy");
+    final format = DateFormat("dd-MM-yyyy");
+
     return Scaffold(
       appBar: AppBar(
         title: Text('Add Expense'),
@@ -67,9 +75,22 @@ class _AddExpenseScreenState extends State<AddExpenseScreen> {
               },
             ),
             SizedBox(height: 12.0), // Added SizedBox for spacing
-            TextField(
-              controller: _categoryController,
-              decoration: InputDecoration(labelText: 'Category'),
+            DropdownButtonFormField<String>(
+              value: _selectedCategory,
+              items: categories.map((String category) {
+                return DropdownMenuItem<String>(
+                  value: category,
+                  child: Text(category),
+                );
+              }).toList(),
+              decoration: InputDecoration(
+                labelText: 'Category',
+              ),
+              onChanged: (value) {
+                setState(() {
+                  _selectedCategory = value;
+                });
+              },
             ),
             SizedBox(height: 24.0),
             ElevatedButton(
@@ -85,20 +106,21 @@ class _AddExpenseScreenState extends State<AddExpenseScreen> {
   void _addExpense(BuildContext context) async {
     final amount = double.tryParse(_amountController.text);
     final description = _descriptionController.text.trim();
-
-    final category = _categoryController.text.trim(); // Retrieve category value
+    final date = _selectedDate; // Retrieve date value
+    final category = _selectedCategory; // Retrieve category value
 
     if (amount != null &&
         amount > 0 &&
         description.isNotEmpty &&
-        category.isNotEmpty) {
+        date != null &&
+        category != null) {
       final currentUser = FirebaseAuth.instance.currentUser;
       if (currentUser != null) {
         final expenseData = {
           'amount': amount,
           'description': description,
-          'date': _selectedDate, // Include date in expense data
-          'category': category, // Include category in expense data
+          'date': date,
+          'category': category,
         };
 
         try {

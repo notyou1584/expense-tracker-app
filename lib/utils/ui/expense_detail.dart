@@ -46,17 +46,23 @@ class _GroupDetailsScreenState extends State<GroupDetailsScreen> {
             labelPadding: EdgeInsets.symmetric(horizontal: 20.0),
           ),
         ),
-        floatingActionButtonLocation: FloatingActionButtonLocation.endDocked,
-        floatingActionButton: FloatingActionButton(
-          onPressed: () {
-            Navigator.push(
-              context,
-              MaterialPageRoute(
-                  builder: (context) =>
-                      AddExpenseScreen(groupId: widget.groupId)),
-            );
-          },
-          child: Text('Add Expense'),
+        floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
+        floatingActionButton: SizedBox(
+          width: 200,
+          child: FloatingActionButton(
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                    builder: (context) =>
+                        AddExpenseScreen(groupId: widget.groupId)),
+              );
+            },
+            child: Text(
+              'Add Expense',
+              style: TextStyle(fontSize: 20),
+            ),
+          ),
         ),
         body: TabBarView(
           children: [
@@ -78,9 +84,6 @@ class GroupExpenseScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text('Group Expenses'),
-      ),
       body: StreamBuilder(
         stream: FirebaseFirestore.instance
             .collection('groups')
@@ -102,8 +105,8 @@ class GroupExpenseScreen extends StatelessWidget {
             itemCount: expenses.length,
             itemBuilder: (context, index) {
               final expense = expenses[index];
-              String formattedDate =
-                  DateFormat('dd MMMM yyyy').format(expense['date']);
+              final expenseDate = (expense['date'] as Timestamp).toDate();
+              final formattedDate = DateFormat('dd MMM').format(expenseDate);
               return Card(
                 margin: EdgeInsets.symmetric(vertical: 8.0),
                 child: ListTile(
@@ -117,19 +120,26 @@ class GroupExpenseScreen extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(' ${expense['description']}'),
+                      Text(
+                        'Date: $formattedDate',
+                        style: TextStyle(
+                          fontSize: 14.0,
+                          color: Colors.grey,
+                        ),
+                      ),
                     ],
                   ),
                   trailing: Column(
                     crossAxisAlignment: CrossAxisAlignment.end,
                     children: [
                       Text(
-                        ' ${expense['amount']} ${expense['currency']}',
+                        ' ${expense['amount']}',
                         style: TextStyle(fontSize: 18.0, color: Colors.red),
                       ),
                       Text(
-                        ' ${formattedDate}',
+                        '$formattedDate',
                         style: TextStyle(fontSize: 14.0),
-                      ),
+                      )
                     ],
                   ),
                 ),
