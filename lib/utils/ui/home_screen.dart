@@ -1,32 +1,52 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:demo222/utils/ui/recent.dart';
 import 'package:flutter/material.dart';
 
-class HomeScreen extends StatefulWidget {
+class HomeScreen extends StatelessWidget {
   final String? userId;
+
   const HomeScreen({Key? key, this.userId}) : super(key: key);
-
-  @override
-  _HomeScreenState createState() => _HomeScreenState();
-}
-
-class _HomeScreenState extends State<HomeScreen> {
-  int currentPageIndex = 0;
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        automaticallyImplyLeading: false,
-        title: const Text('Hello, Hetvi!'),
+        title: StreamBuilder<DocumentSnapshot<Map<String, dynamic>>>(
+          stream: FirebaseFirestore.instance
+              .collection('users')
+              .doc('username')
+              .snapshots(),
+          builder: (context, snapshot) {
+            if (snapshot.connectionState == ConnectionState.waiting) {
+              return Center(child: CircularProgressIndicator());
+            }
+            if (snapshot.hasError) {
+              return Text('Error: ${snapshot.error}');
+            }
+            final username = snapshot.data?['username'] ?? '';
+            return Row(
+              children: [
+                const Text('Hello, '),
+                Text(
+                  username,
+                  style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                    color: Colors.black,
+                  ),
+                ),
+              ],
+            );
+          },
+        ),
         actions: [
           IconButton(
-            icon: const Icon(Icons.notifications),
+            icon: Icon(Icons.notifications),
             color: Color.fromRGBO(35, 81, 85, 1),
             onPressed: () {},
           ),
         ],
       ),
-      body: ExpenseList(userId: widget.userId ?? ''),
+      body: ExpenseList(userId: userId ?? ''),
     );
   }
 }

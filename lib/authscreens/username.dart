@@ -1,14 +1,17 @@
-import 'package:demo222/utils/ui/home.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:demo222/utils/ui/home.dart';
 
 class AddUsernameScreen extends StatelessWidget {
   final TextEditingController _usernameController = TextEditingController();
 
-  void _saveUsername(String username) async {
+  // Function to save username and phone number in Firestore
+  void _saveUsername(String username, String phoneNumber, String userId) async {
     try {
-      await FirebaseFirestore.instance.collection('users').add({
+      await FirebaseFirestore.instance.collection('users').doc(userId).set({
         'username': username,
+        'phoneNumber': phoneNumber,
         // You can add more fields here if needed
       });
     } catch (e) {
@@ -40,19 +43,33 @@ class AddUsernameScreen extends StatelessWidget {
             ElevatedButton(
               style: ElevatedButton.styleFrom(
                   backgroundColor: Color.fromRGBO(30, 81, 85, 1)),
-              onPressed: () {
+              onPressed: () async {
                 String username = _usernameController.text.trim();
                 if (username.isNotEmpty) {
-                  _saveUsername(username);
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(
-                      content: Text('Username saved successfully!'),
-                    ),
-                  );
-                  Navigator.push(
+                  // Get the current user's phone number
+                  User? user = FirebaseAuth.instance.currentUser;
+                  String? phoneNumber = user?.phoneNumber;
+
+                  if (phoneNumber != null) {
+                    // Save username and phone number in Firestore
+                    _saveUsername(username, phoneNumber, user!.uid);
+
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        content: Text('Username saved successfully!'),
+                      ),
+                    );
+
+                    // Navigate to home screen
+                    Navigator.pushReplacement(
                       context,
                       MaterialPageRoute(
-                          builder: (context) => ExpenseTrackerHomeScreen()));
+                        builder: (context) => ExpenseTrackerHomeScreen(),
+                      ),
+                    );
+                  } else {
+                    print('User phone number not available.');
+                  }
                 } else {
                   ScaffoldMessenger.of(context).showSnackBar(
                     SnackBar(

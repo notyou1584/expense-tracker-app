@@ -57,6 +57,8 @@ class _EditExpenseFormState extends State<EditExpenseForm> {
           child: Column(
             children: [
               TextFormField(
+
+                
                 controller: _amountController,
                 keyboardType: TextInputType.number,
                 decoration: InputDecoration(labelText: 'Amount'),

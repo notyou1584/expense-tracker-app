@@ -52,6 +52,7 @@ dependencies:
   flutter_contacts: ^1.1.7+1
   contacts_service: ^0.6.3
   permission_handler: ^11.2.0
+  firebase_app_check: ^0.2.1+13
   
 git branch -M maingit branch -M maindev_dependencies:
   flutter_test:

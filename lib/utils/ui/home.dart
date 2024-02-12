@@ -1,5 +1,4 @@
 import 'package:demo222/utils/ui/expense_add.dart';
-import 'package:demo222/utils/ui/expense_detail.dart';
 import 'package:demo222/utils/ui/home_screen.dart';
 import 'package:demo222/utils/ui/profile_screen.dart';
 import 'package:demo222/utils/ui/reports_screen.dart';
@@ -8,7 +7,11 @@ import 'package:demo222/utils/ui/group_screen.dart';
 
 class ExpenseTrackerHomeScreen extends StatefulWidget {
   final String? userId;
-  const ExpenseTrackerHomeScreen({Key? key, this.userId}) : super(key: key);
+  final String? phonenumber;
+
+  const ExpenseTrackerHomeScreen({Key? key, this.userId, this.phonenumber})
+      : super(key: key);
+
   @override
   _ExpenseTrackerHomeScreenState createState() =>
       _ExpenseTrackerHomeScreenState();
@@ -17,12 +20,23 @@ class ExpenseTrackerHomeScreen extends StatefulWidget {
 class _ExpenseTrackerHomeScreenState extends State<ExpenseTrackerHomeScreen> {
   int _selectedIndex = 0;
 
-  static final List<Widget> _pages = <Widget>[
-    Container(key: PageStorageKey('page1'), child: HomeScreen()),
-    Container(key: PageStorageKey('page2'), child: AnalysisScreen()),
-    Container(key: PageStorageKey('page3'), child: GroupListScreen()),
-    Container(key: PageStorageKey('page4'), child: UserProfileScreen()),
-  ];
+  late List<Widget> _pages;
+
+  @override
+  void initState() {
+    super.initState();
+    _pages = <Widget>[
+      Container(
+          key: PageStorageKey('page1'),
+          child: HomeScreen()),
+      Container(key: PageStorageKey('page2'), child: AnalysisScreen()),
+      Container(
+          key: PageStorageKey('page3'),
+          child: GroupListScreen(
+              currentUserPhoneNumber: widget.phonenumber ?? '')),
+      Container(key: PageStorageKey('page4'), child: UserProfileScreen()),
+    ];
+  }
 
   void _onItemTapped(int index) {
     setState(() {

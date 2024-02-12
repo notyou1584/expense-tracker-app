@@ -3,19 +3,28 @@ import 'package:demo222/authscreens/auth_gate.dart';
 import 'package:demo222/authscreens/firebase_options.dart';
 import 'package:demo222/authscreens/username.dart';
 import 'package:demo222/utils/theme/app_theme.dart';
-import 'package:demo222/utils/ui/group_screen.dart';
+
 import 'package:demo222/utils/ui/home.dart';
 import 'package:demo222/utils/ui/settings_screen.dart';
+
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:demo222/utils/ui/SplashScreen.dart';
+import 'package:firebase_app_check/firebase_app_check.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
+  await FirebaseAppCheck.instance.activate(
+    // You can also use a `ReCaptchaEnterpriseProvider` provider instance as an
+    // argument for `webProvider`
+    webProvider:
+        ReCaptchaEnterpriseProvider('6LfjWGspAAAAAALNCpdLnHKck9EP02BOeUQaOszm'),
+  );
+
   User? user = FirebaseAuth.instance.currentUser;
   String? userId = user?.uid;
   runApp(MyApp(userId: userId));

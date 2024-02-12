@@ -15,7 +15,7 @@ class GroupDetailsScreen extends StatefulWidget {
 }
 
 class _GroupDetailsScreenState extends State<GroupDetailsScreen> {
-  @override
+  @override 
   Widget build(BuildContext context) {
     return DefaultTabController(
       length: 3,

@@ -1,4 +1,5 @@
-
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:demo222/authscreens/auth_remote.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
@@ -149,19 +150,7 @@ class _CodeVerificationScreenState extends State<CodeVerificationScreen> {
     }
   }
 
-  Future<void> signInWithPhoneNumber(
-      String verificationId, String smsCode) async {
-    try {
-      AuthCredential credential = PhoneAuthProvider.credential(
-        verificationId: verificationId,
-        smsCode: smsCode,
-      );
-      await FirebaseAuth.instance.signInWithCredential(credential);
-      print('Phone number verified and signed in successfully.');
-    } catch (e) {
-      print('Failed to verify phone number: $e');
-    }
-  }
+  
 
   @override
   Widget build(BuildContext context) {
@@ -187,7 +176,9 @@ class _CodeVerificationScreenState extends State<CodeVerificationScreen> {
                 onPressed: () {
                   String smsCode =
                       _controllers.map((controller) => controller.text).join();
-                  signInWithPhoneNumber(widget.verificationId, smsCode);
+                  //signInWithPhoneNumber(widget.verificationId, smsCode);
+                  signInAndSignUp(widget.verificationId, smsCode);
+
                   Navigator.pushReplacementNamed(context, '/username');
                 },
                 child: Text('Verify Code'),

@@ -10,7 +10,11 @@
       "client_info": {
         "mobilesdk_app_id": "1:969132553240:android:dd758cec8bacf740637f6d",
         "android_client_info": {
-          "package_name": "com.example.bb"
+          "package_name": "com.example.bb",
+          "certificate_fingerprints": [
+            " 02:67:8C:18:01:EE:0E:1A:00:82:D0:2F:F2:CD:E6:F3:5E:61:B4:70",
+            "F8:DB:82:61:AC:8C:7D:46:7F:98:73:86:CE:AC:E6:61:46:19:F4:59:EF:AA:E6:C4:40:CF:38:FE:35:2C:BC:DB"
+          ]
         }
       },
       "oauth_client": [],
@@ -29,7 +33,11 @@
       "client_info": {
         "mobilesdk_app_id": "1:969132553240:android:b06e405958aff1c4637f6d",
         "android_client_info": {
-          "package_name": "com.example.demmo"
+          "package_name": "com.example.demmo",
+          "certificate_fingerprints": [
+            " 02:67:8C:18:01:EE:0E:1A:00:82:D0:2F:F2:CD:E6:F3:5E:61:B4:70",
+            "F8:DB:82:61:AC:8C:7D:46:7F:98:73:86:CE:AC:E6:61:46:19:F4:59:EF:AA:E6:C4:40:CF:38:FE:35:2C:BC:DB"
+          ]
         }
       },
       "oauth_client": [],
@@ -48,7 +56,11 @@
       "client_info": {
         "mobilesdk_app_id": "1:969132553240:android:b7471cb66105bd99637f6d",
         "android_client_info": {
-          "package_name": "com.example.demo222"
+          "package_name": "com.example.demo222",
+          "certificate_fingerprints": [
+            " 02:67:8C:18:01:EE:0E:1A:00:82:D0:2F:F2:CD:E6:F3:5E:61:B4:70",
+            "F8:DB:82:61:AC:8C:7D:46:7F:98:73:86:CE:AC:E6:61:46:19:F4:59:EF:AA:E6:C4:40:CF:38:FE:35:2C:BC:DB"
+          ]
         }
       },
       "oauth_client": [],

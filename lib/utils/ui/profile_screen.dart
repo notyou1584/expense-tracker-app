@@ -1,5 +1,6 @@
 import 'package:demo222/utils/ui/settings_screen.dart';
 import 'package:flutter/material.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
 class UserProfileScreen extends StatefulWidget {
   const UserProfileScreen({super.key});
@@ -22,7 +23,6 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
   }
 
   // Function to handle password reset
-  
 
   @override
   Widget build(BuildContext context) {
@@ -106,6 +106,8 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
               title: const Text('Logout'),
               leading: const Icon(Icons.exit_to_app),
               onTap: () {
+                FirebaseAuth.instance.signOut();
+                Navigator.pushReplacementNamed(context, '/auth');
                 // Add logout functionality
                 // You can navigate to another screen or perform other actions.
                 // Example: navigateToLoginScreen();
