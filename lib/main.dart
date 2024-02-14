@@ -1,4 +1,6 @@
 //import 'package:demo222/authscreens/auth_gate.dart';
+import 'dart:io';
+
 import 'package:demo222/authscreens/auth_gate.dart';
 import 'package:demo222/authscreens/firebase_options.dart';
 import 'package:demo222/authscreens/username.dart';
@@ -12,6 +14,15 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:demo222/utils/ui/SplashScreen.dart';
 import 'package:firebase_app_check/firebase_app_check.dart';
+
+class MyHttpOverrides extends HttpOverrides {
+  @override
+  HttpClient createHttpClient(SecurityContext? context) {
+    return super.createHttpClient(context)
+      ..badCertificateCallback =
+          (X509Certificate cert, String host, int port) => true;
+  }
+}
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -27,6 +38,7 @@ void main() async {
 
   User? user = FirebaseAuth.instance.currentUser;
   String? userId = user?.uid;
+  HttpOverrides.global = new MyHttpOverrides();
   runApp(MyApp(userId: userId));
 }
 

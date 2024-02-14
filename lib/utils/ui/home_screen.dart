@@ -11,32 +11,10 @@ class HomeScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: StreamBuilder<DocumentSnapshot<Map<String, dynamic>>>(
-          stream: FirebaseFirestore.instance
-              .collection('users')
-              .doc('username')
-              .snapshots(),
-          builder: (context, snapshot) {
-            if (snapshot.connectionState == ConnectionState.waiting) {
-              return Center(child: CircularProgressIndicator());
-            }
-            if (snapshot.hasError) {
-              return Text('Error: ${snapshot.error}');
-            }
-            final username = snapshot.data?['username'] ?? '';
-            return Row(
-              children: [
-                const Text('Hello, '),
-                Text(
-                  username,
-                  style: TextStyle(
-                    fontWeight: FontWeight.bold,
-                    color: Colors.black,
-                  ),
-                ),
-              ],
-            );
-          },
+        title: Row(
+          children: [
+            const Text('Hello, '),
+          ],
         ),
         actions: [
           IconButton(

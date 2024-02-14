@@ -1,3 +1,4 @@
+import 'package:demo222/api_constants.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
@@ -7,14 +8,47 @@ Future<UserCredential?> signInWithPhoneNumber(
   String smsCode,
 ) async {
   try {
+    // Check if the user is already signed in
+    User? currentUser = FirebaseAuth.instance.currentUser;
+    if (currentUser != null) {
+      // Retrieve the user's current authentication provider data
+      List<UserInfo> providerData = currentUser.providerData;
+
+      // Extract the provider ID from the first provider in the list
+      String providerId =
+          providerData.isNotEmpty ? providerData[0].providerId : '';
+
+      // Create a new AuthCredential object based on the provider ID
+      AuthCredential credential;
+      if (providerId == 'phone') {
+        // If the user is already authenticated via phone, create PhoneAuthCredential
+        credential = PhoneAuthProvider.credential(
+            verificationId: verificationId, smsCode: smsCode);
+      } else {
+        // Handle other authentication providers here if needed
+        throw Exception('Unsupported authentication provider: $providerId');
+      }
+
+      // Sign in with the credential
+      return await FirebaseAuth.instance.signInWithCredential(credential);
+    }
+
+    // If the user is not signed in, proceed with phone authentication
     AuthCredential credential = PhoneAuthProvider.credential(
       verificationId: verificationId,
       smsCode: smsCode,
     );
-    return (await FirebaseAuth.instance.signInWithCredential(credential));
+
+    // Sign in with the credential
+    return await FirebaseAuth.instance.signInWithCredential(credential);
   } catch (e) {
-    print('Failed to verify phone number: $e');
+    if (e is FormatException) {
+      print('Invalid format: $e');
+    } else {
+      print('Failed to verify phone number: $e');
+    }
   }
+
   return null;
 }
 
@@ -50,7 +84,7 @@ void signInAndSignUp(String verificationId, String smsCode) async {
 
 Future<Map<String, dynamic>> userSignup(String accessKey, String firebaseId,
     String mobile, String usersignup, String status) async {
-  final String apiUrl = '00';
+  final String apiUrl = 'http://192.168.39.92/expense-o/apis.php';
 
   final Map<String, String> postData = {
     'access_key': accessKey,

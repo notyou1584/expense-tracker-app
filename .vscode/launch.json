@@ -1,13 +1,12 @@
 {
-    "version": "0.2.0",
-    "configurations": [
-      {
-        "name": "Flutter",
-        "request": "launch",
-        "type": "dart",
-        "flutterMode": "debug",
-        "args": ["--observatory-port", "81"]
-      }
-    ]
-  }
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "Flutter",
+      "request": "launch",
+      "type": "dart",
+      "flutterMode": "debug",
+    }
+  ]
+}
   

@@ -26,9 +26,7 @@ class _ExpenseTrackerHomeScreenState extends State<ExpenseTrackerHomeScreen> {
   void initState() {
     super.initState();
     _pages = <Widget>[
-      Container(
-          key: PageStorageKey('page1'),
-          child: HomeScreen()),
+      Container(key: PageStorageKey('page1'), child: HomeScreen()),
       Container(key: PageStorageKey('page2'), child: AnalysisScreen()),
       Container(
           key: PageStorageKey('page3'),
