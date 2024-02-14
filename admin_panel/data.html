@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Data Tables</title>
+  <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.11.5/css/jquery.dataTables.css">
+</head>
+<body>
+
+<table id="dataTable" class="display">
+    <thead>
+        <tr>
+            <th>firebase_id</th>
+            <th>mobile</th>
+            <th>status</th>
+        </tr>
+    </thead>
+    <tbody>
+    </tbody>
+</table>
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://cdn.datatables.net/1.11.5/js/jquery.dataTables.js"></script>
+<script>
+$(document).ready(function() {
+    // Fetch data from data.php using AJAX
+    /*
+    $.ajax({
+        url: 'data.php',
+        type: 'GET',
+        dataType: 'json',
+        success: function(data) {
+            // Populate data table with fetched data
+            $.each(data, function(index, row) {
+                $('#dataTable tbody').append(
+                    '<tr>' +
+                        '<td>' + row.firebase_id + '</td>' +
+                        '<td>' + row.mobile + '</td>' +
+                        '<td>' + row.status + '</td>' +
+                    '</tr>'
+                );
+            });
+            
+            // Initialize DataTable
+            $('#dataTable').DataTable();
+        },
+        error: function(xhr, status, error) {
+            console.error(xhr.responseText);
+        }
+    });
+    */
+    
+    // Initialize DataTable without AJAX (commented out AJAX code above)
+    $('#dataTable').DataTable();
+});
+</script>
+
+</body>
+</html>

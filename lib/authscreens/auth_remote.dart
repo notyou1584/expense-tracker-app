@@ -1,3 +1,4 @@
+import 'package:demo222/api_constants.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
@@ -83,7 +84,7 @@ void signInAndSignUp(String verificationId, String smsCode) async {
 
 Future<Map<String, dynamic>> userSignup(String accessKey, String firebaseId,
     String mobile, String usersignup, String status) async {
-  final String apiUrl = 'http://192.168.1.121:80/Expense-o/apis.php';
+  final String apiUrl = '$apiBaseUrl/expense-o/apis.php';
 
   final Map<String, String> postData = {
     'access_key': accessKey,

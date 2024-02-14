@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin Dashboard</title>
+  
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+    }
+    .container {
+      display: flex;
+      height: 100vh;
+    } 
+    .sidebar {
+      flex: 0 0 200px;
+      background-color: #333;
+      color: white;
+      padding-top: 20px;
+    }
+    .sidebar label {
+      display: block;
+      margin: 10px 0;
+      padding-left: 10px;
+    }
+    .sidebar select {
+      width: 100%;
+      padding: 10px;
+      margin: 0 0 10px;
+      border: none;
+      background-color: #555;
+      color: white;
+      font-size: 16px;
+      cursor: pointer;
+    }
+    .content {
+      flex: 1;
+      padding: 20px;
+    }
+    h2 {
+      margin-top: 0;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+    th, td {
+      padding: 8px;
+      border-bottom: 1px solid #ddd;
+      text-align: left;
+    }
+    th {
+      background-color: #f2f2f2;
+    }
+  </style>
+</head>
+<body>
+
+<div class="container">
+  <div class="sidebar">
+    <label for="dashboard-option">Expense-O</label>
+    <select id="dashboard-option" onchange="selectOption(this)">
+      <option value="dashboard">Dashboard</option>
+      <option value="datatables">Data Tables</option>
+    </select>
+  </div>
+
+  <div class="content" id="dashboard">
+    <h2>Admin Dashboard</h2>
+  </div>
+</div>
+
+<script>
+  function selectOption(select) {
+    var selectedOption = select.value;
+    var dashboardDiv = document.getElementById("dashboard");
+    
+    if (selectedOption === "dashboard") {
+      dashboardDiv.style.display = "block";
+    } else if (selectedOption === "data.html") 
+  }
+</script>
+
+</body>
+</html>

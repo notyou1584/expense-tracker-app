@@ -13,7 +13,7 @@ final FirebaseFirestore _firestore = FirebaseFirestore.instance;
 // Function to add an expense
 
 Future<Map<String, dynamic>> addExpense(Expense expense) async {
-  final String apiUrl = 'http://192.168.1.121:80/Expense-o/apis.php';
+  final String apiUrl = '$apiBaseUrl/expense-o/apis.php';
 
   // Convert amount to string
   String amount = expense.amount.toString();
