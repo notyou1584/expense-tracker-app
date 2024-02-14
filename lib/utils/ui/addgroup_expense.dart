@@ -112,7 +112,6 @@ class _AddExpenseScreenState extends State<AddExpenseScreen> {
     if (amount != null &&
         amount > 0 &&
         description.isNotEmpty &&
-        date != null &&
         category != null) {
       final currentUser = FirebaseAuth.instance.currentUser;
       if (currentUser != null) {

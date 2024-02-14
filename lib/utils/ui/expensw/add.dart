@@ -13,7 +13,7 @@ final FirebaseFirestore _firestore = FirebaseFirestore.instance;
 // Function to add an expense
 
 Future<Map<String, dynamic>> addExpense(Expense expense) async {
-  final String apiUrl = 'http://192.168.39.92/expense-o/apis.php';
+  final String apiUrl = 'http://192.168.1.121:80/Expense-o/apis.php';
 
   // Convert amount to string
   String amount = expense.amount.toString();
@@ -22,12 +22,13 @@ Future<Map<String, dynamic>> addExpense(Expense expense) async {
   final Map<String, dynamic> postData = {
     'add_expense': '1',
     'access_key': '5505',
-    'userId': expense.userId,
+    'user_id': expense.userId,
     'amount': amount,
     'currency': expense.currency,
     'description': expense.description,
     'category': expense.category,
-    'date': expense.date.toIso8601String(),
+    'status': '1',
+    //'date': expense.date.toIso8601String(),
   };
 
   try {
@@ -70,7 +71,6 @@ Future<Map<String, dynamic>> addExpense(Expense expense) async {
     };
   }
 }
-
 
 //get
 Stream<List<Expense>> getExpenses(String userId) {

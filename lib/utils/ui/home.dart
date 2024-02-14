@@ -2,6 +2,7 @@ import 'package:demo222/utils/ui/expense_add.dart';
 import 'package:demo222/utils/ui/home_screen.dart';
 import 'package:demo222/utils/ui/profile_screen.dart';
 import 'package:demo222/utils/ui/reports_screen.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:demo222/utils/ui/group_screen.dart';
 
@@ -48,10 +49,12 @@ class _ExpenseTrackerHomeScreenState extends State<ExpenseTrackerHomeScreen> {
       floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
       floatingActionButton: FloatingActionButton(
         onPressed: () {
+          User? currentUser = FirebaseAuth.instance.currentUser;
+          String userId = currentUser!.uid;
           Navigator.push(
             context,
             MaterialPageRoute(
-              builder: (context) => ExpenseForm(userId: widget.userId),
+              builder: (context) => ExpenseForm(userId: userId),
             ),
           );
         },
