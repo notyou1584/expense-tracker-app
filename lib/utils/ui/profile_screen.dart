@@ -1,58 +1,101 @@
-import 'package:demo222/utils/ui/settings_screen.dart';
-import 'package:flutter/material.dart';
+import 'package:demo222/api_constants.dart';
+import 'package:demo222/utils/ui/profile_edit.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
+
+import 'settings_screen.dart';
 
 class UserProfileScreen extends StatefulWidget {
-  const UserProfileScreen({super.key});
+  const UserProfileScreen({Key? key}) : super(key: key);
 
   @override
-  // ignore: library_private_types_in_public_api
   _UserProfileScreenState createState() => _UserProfileScreenState();
 }
 
 class _UserProfileScreenState extends State<UserProfileScreen> {
   final TextEditingController _usernameController = TextEditingController();
-  final String _username = 'Noopur'; // Replace with the actual username
-  //final bool _isDarkMode = false;
+  String _username = ''; // Initialize as empty
+  String _email = ''; // Initialize as empty
 
   @override
   void initState() {
     super.initState();
-    // Initialize the username when the screen is loaded
-    _usernameController.text = _username;
+    // Call the userdata function to fetch user data when the screen is loaded
+    fetchUserData();
   }
 
-  // Function to handle password reset
+  Future<void> fetchUserData() async {
+    final String apiUrl = '$apiBaseUrl/expense-o/fetch_name.php';
+    final User? currentUser = FirebaseAuth.instance.currentUser;
+    final String userId = currentUser?.uid ?? '';
+    final Map<String, dynamic> postData = {
+      'fetch_name': '1', // Change to appropriate key for fetching name
+      'access_key': '5505',
+      'user_id': userId, // Replace '123' with the actual user ID
+    };
+
+    final response = await http.post(
+      Uri.parse(apiUrl),
+      body: postData,
+    );
+
+    if (response.statusCode == 200) {
+      final responseData = json.decode(response.body);
+      if (responseData != null &&
+          responseData['error'] != null &&
+          responseData['error'] == 'false' &&
+          responseData['data'] != null) {
+        // Extract user data from response
+        setState(() {
+          _username = responseData['data']['user_name'];
+          _email = responseData['data']['email'];
+        });
+      } else {
+        // Handle error
+        print('Failed to fetch user data');
+      }
+    } else {
+      // Handle HTTP error
+      print('Failed to fetch user data: ${response.reasonPhrase}');
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         title: const Text('User Profile'),
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back),
-          onPressed: () {
-            // Handle back button press
-            // You can navigate to the previous screen or perform other actions.
-            // Example: Navigator.pop(context);
-          },
-        ),
+        automaticallyImplyLeading: false,
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
+            // Profile information
             Row(
               children: [
-                const CircleAvatar(
-                  // Add your profile picture logic here
-                  radius: 30,
-                  backgroundColor: Colors.grey,
-                  child: Icon(
-                    Icons.person,
-                    size: 30,
-                    color: Colors.white,
+                GestureDetector(
+                  onTap: () {
+                    // Navigate to edit profile screen
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => EditProfileScreen(
+                            username: _username, email: _email),
+                      ),
+                    );
+                  },
+                  child: CircleAvatar(
+                    radius: 30,
+                    backgroundColor: Colors.grey,
+                    child: Icon(
+                      Icons.person,
+                      size: 30,
+                      color: Colors.white,
+                    ),
                   ),
                 ),
                 const SizedBox(width: 16),
@@ -63,7 +106,9 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
                       const Text(
                         'Username:',
                         style: TextStyle(
-                            fontWeight: FontWeight.bold, fontSize: 18),
+                          fontWeight: FontWeight.bold,
+                          fontSize: 18,
+                        ),
                       ),
                       const SizedBox(height: 8),
                       Text(
@@ -75,7 +120,7 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
                 ),
               ],
             ),
-            const SizedBox(height: 16),
+
             const Divider(),
             ListTile(
               title: const Text('Settings'),
@@ -113,6 +158,9 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
                 // Example: navigateToLoginScreen();
               },
             ),
+            // Other options
+            // Settings, Export Data, Logout
+            // Add your ListTile widgets here
           ],
         ),
       ),

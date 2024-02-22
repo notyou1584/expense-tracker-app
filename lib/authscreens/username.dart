@@ -1,3 +1,5 @@
+import 'package:demo222/api_constants.dart';
+import 'package:demo222/authscreens/auth_remote.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -5,19 +7,7 @@ import 'package:demo222/utils/ui/home.dart';
 
 class AddUsernameScreen extends StatelessWidget {
   final TextEditingController _usernameController = TextEditingController();
-
-  // Function to save username and phone number in Firestore
-  void _saveUsername(String username, String phoneNumber, String userId) async {
-    try {
-      await FirebaseFirestore.instance.collection('users').doc(userId).set({
-        'username': username,
-        'phoneNumber': phoneNumber,
-        // You can add more fields here if needed
-      });
-    } catch (e) {
-      print('Error saving username: $e');
-    }
-  }
+  final TextEditingController _emailController = TextEditingController();
 
   @override
   Widget build(BuildContext context) {
@@ -40,27 +30,36 @@ class AddUsernameScreen extends StatelessWidget {
               ),
             ),
             SizedBox(height: 16.0),
+            TextField(
+              controller: _emailController,
+              decoration: InputDecoration(
+                labelText: 'Email',
+                prefixIcon: Icon(Icons.email),
+              ),
+            ),
+            SizedBox(height: 16.0),
             ElevatedButton(
               style: ElevatedButton.styleFrom(
-                  backgroundColor: Color.fromRGBO(30, 81, 85, 1)),
+                backgroundColor: Color.fromRGBO(30, 81, 85, 1),
+              ),
               onPressed: () async {
                 String username = _usernameController.text.trim();
-                if (username.isNotEmpty) {
-                  // Get the current user's phone number
+                String email = _emailController.text.trim();
+                if (username.isNotEmpty && email.isNotEmpty) {
                   User? user = FirebaseAuth.instance.currentUser;
-                  String? phoneNumber = user?.phoneNumber;
+                  String? user_id = user?.uid;
 
-                  if (phoneNumber != null) {
-                    // Save username and phone number in Firestore
-                    _saveUsername(username, phoneNumber, user!.uid);
+                  if (user_id != null) {
+                    // Call userdata function to save data
+                    userdata(user_id, username, email);
 
                     ScaffoldMessenger.of(context).showSnackBar(
                       SnackBar(
-                        content: Text('Username saved successfully!'),
+                        content: Text('Username and Email saved successfully!'),
                       ),
                     );
 
-                    // Navigate to home screen
+                    // Navigate to home screen and pass the username as a parameter
                     Navigator.pushReplacement(
                       context,
                       MaterialPageRoute(
@@ -73,7 +72,7 @@ class AddUsernameScreen extends StatelessWidget {
                 } else {
                   ScaffoldMessenger.of(context).showSnackBar(
                     SnackBar(
-                      content: Text('Please enter a username.'),
+                      content: Text('Please enter a valid email and username.'),
                     ),
                   );
                 }

@@ -45,6 +45,7 @@ Future<UserCredential?> signInWithPhoneNumber(
     if (e is FormatException) {
       print('Invalid format: $e');
     } else {
+      
       print('Failed to verify phone number: $e');
     }
   }
@@ -61,16 +62,16 @@ void signInAndSignUp(String verificationId, String smsCode) async {
 
     // After successful sign-in, proceed with user signup
     final Map<String, dynamic> signupResult = await userSignup(
-        '5505', // Access key
-        firebaseId, // Firebase user ID
-        phoneNumber!,
-        '1',
-        '1' // User's phone number
-        );
+      '5505', // Access key
+      firebaseId, // Firebase user ID
+      phoneNumber!,
+      '1', // Assuming usersignup parameter value
+      '1', // Assuming status parameter value
+    );
 
     if (signupResult['success']) {
       print('User signed up successfully');
-      print(signupResult['data']); // Access user data here+DS
+      print(signupResult['data']); // Access user data here
       // Navigate to next screen or perform necessary actions
     } else {
       print('Error: ${signupResult['message']}');
@@ -91,33 +92,81 @@ Future<Map<String, dynamic>> userSignup(String accessKey, String firebaseId,
     'user_signup': usersignup,
     'firebase_id': firebaseId,
     'mobile': mobile,
-    'status': status // Assuming status is always 1 for active users
+    'status': status, // Assuming status is always 1 for active users
   };
 
-  final http.Response response =
-      await http.post(Uri.parse(apiUrl), body: postData);
+  try {
+    final http.Response response =
+        await http.post(Uri.parse(apiUrl), body: postData);
 
-  if (response.statusCode == 200) {
-    print(response.body);
-    final Map<String, dynamic> responseData = json.decode(response.body);
-    print(responseData);
+    if (response.statusCode == 200) {
 
-    if (responseData['error'] == 'false') {
-      return {
-        'success': true,
-        'message': responseData['message'],
-        'data': responseData['data'],
-      };
+      final responseData = json.decode(response.body);
+     
+
+      if (responseData['error'] == false) {
+        // Note: Changed 'false' to false
+        return {
+          'success': true,
+          'message': responseData['message'],
+          'data': responseData['data'],
+        };
+      } else {
+        return {
+          'success': false,
+          'message': responseData['message'],
+        };
+      }
     } else {
       return {
         'success': false,
-        'message': responseData['message'],
+        'message': 'Failed to connect to server',
       };
     }
-  } else {
+  } catch (e) {
+    print('Exception during user signup: $e');
     return {
       'success': false,
-      'message': 'Failed to connect to server',
+      'message': 'Exception during user signup: $e',
     };
+  }
+}
+
+Future<void> userdata(uid, user_name, email) async {
+  final String apiUrl = '$apiBaseUrl/expense-o/add_name.php';
+  final Map<String, dynamic> postData = {
+    'add_name': '1',
+    'access_key': '5505',
+    'user_name': user_name,
+    'user_id': uid,
+    'email': email
+  };
+
+  final response = await http.post(
+    Uri.parse(apiUrl),
+    body: postData,
+  );
+
+  if (response.statusCode == 200) {
+    final responseData = json.decode(response.body);
+    if (responseData != null &&
+        responseData['error'] != null &&
+        responseData['error'] == 'false' &&
+        responseData['data'] != null) {
+      print('Username and email added successfully');
+
+      // Extract user data from response
+      final userData = responseData['data'];
+      // Now you can use userData for further processing if needed
+      print('Updated user data: $userData');
+    } else {
+      // Check if there's a message in the response, else print a generic error message
+      final errorMessage = responseData != null
+          ? responseData['message']
+          : 'Unknown error occurred';
+      print('Failed to add username and email: $errorMessage');
+    }
+  } else {
+    print('Failed to add username and email: ${response.reasonPhrase}');
   }
 }

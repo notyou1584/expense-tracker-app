@@ -1,6 +1,6 @@
 import 'package:datetime_picker_formfield_new/datetime_picker_formfield.dart';
-import 'package:demo222/utils/ui/expensw/add.dart';
-import 'package:demo222/utils/ui/expensw/expense_model.dart';
+import 'package:demo222/utils/ui/expense/add.dart';
+import 'package:demo222/utils/ui/expense/expense_model.dart';
 import 'package:dropdown_search/dropdown_search.dart';
 import 'package:flutter/material.dart';
 
@@ -17,8 +17,8 @@ class _ExpenseFormState extends State<ExpenseForm> {
   final _formKey = GlobalKey<FormState>();
 
   late TextEditingController _amountController;
-  final _descriptionController = TextEditingController();
-  String _selectedCurrency = 'INR'; // Set default currency
+  final _descriptionController =
+      TextEditingController(); // Set default currency
   String _selectedCategory = 'Food';
   DateTime _selectedDate = DateTime.now();
   @override
@@ -30,7 +30,7 @@ class _ExpenseFormState extends State<ExpenseForm> {
   @override
   Widget build(BuildContext context) {
     String userId = widget.userId ?? '';
-    final format = DateFormat("dd-mm-yyyy");
+    final format = DateFormat("dd-MM-yyyy");
 
     return Scaffold(
       body: Padding(
@@ -49,21 +49,6 @@ class _ExpenseFormState extends State<ExpenseForm> {
                   }
                   return null;
                 },
-              ),
-              SizedBox(height: 16),
-              DropdownSearch<String>(
-                items: [
-                  'USD',
-                  'EUR',
-                  'GBP',
-                  'INR'
-                ], // Add more currencies as needed
-                onChanged: (value) {
-                  setState(() {
-                    _selectedCurrency = value!;
-                  });
-                },
-                selectedItem: _selectedCurrency,
               ),
               SizedBox(height: 16),
               TextFormField(
@@ -93,7 +78,7 @@ class _ExpenseFormState extends State<ExpenseForm> {
               SizedBox(height: 16),
               DateTimeField(
                 format: format,
-                initialValue: _selectedDate,
+                initialValue: _selectedDate.toLocal(),
                 onShowPicker: (context, currentValue) async {
                   final date = await showDatePicker(
                     context: context,
@@ -126,7 +111,6 @@ class _ExpenseFormState extends State<ExpenseForm> {
                       id: '',
                       userId: userId,
                       amount: double.parse(_amountController.text),
-                      currency: _selectedCurrency,
                       description: _descriptionController.text,
                       category: _selectedCategory,
                       date: _selectedDate,

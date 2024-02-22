@@ -1,6 +1,6 @@
 import 'package:demo222/utils/ui/editandicons.dart';
-import 'package:demo222/utils/ui/expensw/add.dart';
-import 'package:demo222/utils/ui/expensw/expense_model.dart';
+import 'package:demo222/utils/ui/expense/add.dart';
+import 'package:demo222/utils/ui/expense/expense_model.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
@@ -12,7 +12,6 @@ class ExpenseDetailsScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     String formattedDate = DateFormat('dd MMMM yyyy').format(expense.date);
-    String formattedTime = DateFormat('HH:mm').format(expense.date);
 
     return Scaffold(
       appBar: AppBar(
@@ -28,10 +27,6 @@ class ExpenseDetailsScreen extends StatelessWidget {
               children: [
                 Text(
                   '$formattedDate',
-                  style: TextStyle(fontSize: 18.0),
-                ),
-                Text(
-                  '$formattedTime',
                   style: TextStyle(fontSize: 18.0),
                 ),
               ],
@@ -54,7 +49,7 @@ class ExpenseDetailsScreen extends StatelessWidget {
                 ],
               ),
               trailing: Text(
-                ' ${expense.amount} ${expense.currency}',
+                ' ${expense.amount} INR',
                 style: TextStyle(fontSize: 18.0, color: Colors.red),
               ),
             ),

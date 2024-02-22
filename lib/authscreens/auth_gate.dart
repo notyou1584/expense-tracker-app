@@ -41,6 +41,7 @@ class _PhoneAuthScreenState extends State<PhoneAuthScreen> {
       verificationFailed: verificationFailed,
       codeSent: smsSent,
       codeAutoRetrievalTimeout: autoRetrievalTimeout,
+      
     );
   }
 

@@ -1,13 +1,16 @@
-import 'package:flutter/material.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:demo222/utils/ui/expense/addgroup.dart';
+import 'package:demo222/utils/ui/expense/expense_model.dart';
+import 'package:dropdown_search/dropdown_search.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:datetime_picker_formfield_new/datetime_picker_formfield.dart';
 
 class AddExpenseScreen extends StatefulWidget {
-  final String groupId;
+  final int groupId;
+  final String? userId;
 
-  AddExpenseScreen({required this.groupId});
+  AddExpenseScreen({required this.groupId, this.userId});
 
   @override
   _AddExpenseScreenState createState() => _AddExpenseScreenState();
@@ -29,11 +32,15 @@ class _AddExpenseScreenState extends State<AddExpenseScreen> {
 
   @override
   Widget build(BuildContext context) {
+    User? currentUser = FirebaseAuth.instance.currentUser;
+    String userId = currentUser!.uid;
+    int groupId = widget.groupId; // Initialize groupId
     final format = DateFormat("dd-MM-yyyy");
 
     return Scaffold(
       appBar: AppBar(
         title: Text('Add Expense'),
+        excludeHeaderSemantics: true,
       ),
       body: Padding(
         padding: EdgeInsets.all(16.0),
@@ -75,71 +82,66 @@ class _AddExpenseScreenState extends State<AddExpenseScreen> {
               },
             ),
             SizedBox(height: 12.0), // Added SizedBox for spacing
-            DropdownButtonFormField<String>(
-              value: _selectedCategory,
-              items: categories.map((String category) {
-                return DropdownMenuItem<String>(
-                  value: category,
-                  child: Text(category),
-                );
-              }).toList(),
-              decoration: InputDecoration(
-                labelText: 'Category',
-              ),
+            DropdownSearch<String>(
+              items: [
+                'Food',
+                'Transportation',
+                'Shopping'
+              ], // Add more categories
               onChanged: (value) {
                 setState(() {
-                  _selectedCategory = value;
+                  _selectedCategory = value!;
                 });
               },
+              selectedItem: _selectedCategory,
             ),
             SizedBox(height: 24.0),
             ElevatedButton(
-              onPressed: () => _addExpense(context),
-              child: Text('Add Expense'),
+              onPressed: () async {
+                // Validate and add expense to Firestore
+                if (_amountController.text.isNotEmpty &&
+                    _descriptionController.text.isNotEmpty) {
+                  Expense newExpense = Expense(
+                      id: '',
+                      userId: userId,
+                      groupId: groupId,
+                      amount: double.parse(_amountController.text),
+                      description: _descriptionController.text,
+                      category: _selectedCategory!, // Force unwrapping
+                      date: _selectedDate,
+                      );
+
+                  // Call the addExpense function here (Firebase Firestore)
+                  await addgroupExpense(newExpense);
+
+                  // Show a success message or navigate to the expense list page
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: Text('Expense added successfully'),
+                    ),
+                  );
+                  Navigator.pop(context);
+                } else {
+                  // Show an error message if any field is empty
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: Text('Please fill in all fields'),
+                      backgroundColor: Colors.red,
+                    ),
+                  );
+                }
+              },
+              child: const Text(
+                'Add Expense',
+                style: TextStyle(
+                  fontSize: 18,
+                  color: Colors.white,
+                ),
+              ),
             ),
           ],
         ),
       ),
     );
-  }
-
-  void _addExpense(BuildContext context) async {
-    final amount = double.tryParse(_amountController.text);
-    final description = _descriptionController.text.trim();
-    final date = _selectedDate; // Retrieve date value
-    final category = _selectedCategory; // Retrieve category value
-
-    if (amount != null &&
-        amount > 0 &&
-        description.isNotEmpty &&
-        category != null) {
-      final currentUser = FirebaseAuth.instance.currentUser;
-      if (currentUser != null) {
-        final expenseData = {
-          'amount': amount,
-          'description': description,
-          'date': date,
-          'category': category,
-        };
-
-        try {
-          await FirebaseFirestore.instance
-              .collection('groups')
-              .doc(widget.groupId)
-              .collection('expenses')
-              .add(expenseData);
-
-          // Optionally, you can navigate back to the previous screen after adding the expense.
-          Navigator.pop(context);
-        } catch (error) {
-          print('Error adding expense: $error');
-          // Handle error, e.g., display an error message to the user
-        }
-      } else {
-        // Handle case where current user is null (shouldn't occur if properly authenticated)
-      }
-    } else {
-      // Handle invalid amount, description, date, or category (e.g., display error message to the user)
-    }
   }
 }

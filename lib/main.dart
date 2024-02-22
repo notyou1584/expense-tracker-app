@@ -30,8 +30,7 @@ void main() async {
     options: DefaultFirebaseOptions.currentPlatform,
   );
   await FirebaseAppCheck.instance.activate(
-    // You can also use a `ReCaptchaEnterpriseProvider` provider instance as an
-    // argument for `webProvider`
+
     webProvider:
         ReCaptchaEnterpriseProvider('6LfjWGspAAAAAALNCpdLnHKck9EP02BOeUQaOszm'),
   );
@@ -42,13 +41,20 @@ void main() async {
   runApp(MyApp(userId: userId));
 }
 
-class MyApp extends StatelessWidget {
+class MyApp extends StatefulWidget {
   final String? userId;
   const MyApp({Key? key, required this.userId}) : super(key: key);
+
+  @override
+  State<MyApp> createState() => _MyAppState();
+}
+
+class _MyAppState extends State<MyApp> {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
       theme: MyThemes.lightTheme,
+      
       home: SplashScreen(),
       routes: {
         '/auth': (_) => PhoneAuthScreen(),

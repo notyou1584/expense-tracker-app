@@ -29,10 +29,7 @@ class _ExpenseTrackerHomeScreenState extends State<ExpenseTrackerHomeScreen> {
     _pages = <Widget>[
       Container(key: PageStorageKey('page1'), child: HomeScreen()),
       Container(key: PageStorageKey('page2'), child: AnalysisScreen()),
-      Container(
-          key: PageStorageKey('page3'),
-          child: GroupListScreen(
-              currentUserPhoneNumber: widget.phonenumber ?? '')),
+      Container(key: PageStorageKey('page3'), child: GroupListWithCreateScreen()),
       Container(key: PageStorageKey('page4'), child: UserProfileScreen()),
     ];
   }

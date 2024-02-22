@@ -1,6 +1,9 @@
 import 'package:datetime_picker_formfield_new/datetime_picker_formfield.dart';
-import 'package:demo222/utils/ui/expensw/add.dart';
-import 'package:demo222/utils/ui/expensw/expense_model.dart';
+import 'package:demo222/utils/ui/expense_show.dart';
+import 'package:demo222/utils/ui/expense/add.dart';
+import 'package:demo222/utils/ui/expense/expense_model.dart';
+import 'package:demo222/utils/ui/home.dart';
+import 'package:demo222/utils/ui/home_screen.dart';
 import 'package:dropdown_search/dropdown_search.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
@@ -26,8 +29,8 @@ class _EditExpenseFormState extends State<EditExpenseForm> {
   final _formKey = GlobalKey<FormState>();
 
   late TextEditingController _amountController;
-  final _descriptionController = TextEditingController();
-  String _selectedCurrency = ''; // Set default currency
+  final _descriptionController =
+      TextEditingController(); // Set default currency
   String _selectedCategory = '';
   DateTime _selectedDate = DateTime.now();
 
@@ -36,7 +39,6 @@ class _EditExpenseFormState extends State<EditExpenseForm> {
     super.initState();
     _amountController = TextEditingController();
     _amountController.text = widget.expense.amount.toString();
-    _selectedCurrency = widget.expense.currency;
     _descriptionController.text = widget.expense.description;
     _selectedCategory = widget.expense.category;
     _selectedDate = widget.expense.date;
@@ -57,8 +59,6 @@ class _EditExpenseFormState extends State<EditExpenseForm> {
           child: Column(
             children: [
               TextFormField(
-
-                
                 controller: _amountController,
                 keyboardType: TextInputType.number,
                 decoration: InputDecoration(labelText: 'Amount'),
@@ -68,21 +68,6 @@ class _EditExpenseFormState extends State<EditExpenseForm> {
                   }
                   return null;
                 },
-              ),
-              SizedBox(height: 16),
-              DropdownSearch<String>(
-                items: [
-                  'USD',
-                  'EUR',
-                  'GBP',
-                  'INR'
-                ], // Add more currencies as needed
-                onChanged: (value) {
-                  setState(() {
-                    _selectedCurrency = value!;
-                  });
-                },
-                selectedItem: _selectedCurrency,
               ),
               SizedBox(height: 16),
               TextFormField(
@@ -146,13 +131,11 @@ class _EditExpenseFormState extends State<EditExpenseForm> {
                       id: widget.expense.id,
                       userId: widget.expense.userId,
                       amount: double.parse(_amountController.text),
-                      currency: _selectedCurrency,
                       description: _descriptionController.text,
                       category: _selectedCategory,
                       date: _selectedDate,
+                      groupId: 0,
                     );
-
-                    // Call the editExpense function here (Firebase Firestore)
 
                     // Show a success message or navigate back
                     ScaffoldMessenger.of(context).showSnackBar(
@@ -160,6 +143,7 @@ class _EditExpenseFormState extends State<EditExpenseForm> {
                         content: Text('Expense updated successfully'),
                       ),
                     );
+
                     await editExpense(updatedExpense);
                     Navigator.pop(context);
                   } else {

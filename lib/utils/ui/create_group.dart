@@ -1,9 +1,26 @@
+import 'dart:convert';
+import 'package:demo222/api_constants.dart';
+import 'package:http/http.dart' as http;
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:contacts_service/contacts_service.dart';
-import 'package:demo222/utils/ui/expense_detail.dart';
 import 'package:demo222/utils/ui/group_screen.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:permission_handler/permission_handler.dart';
+
+import 'group_details.dart';
+
+class ContactData {
+  final String displayName;
+  final String phoneNumber;
+
+  ContactData({required this.displayName, required this.phoneNumber});
+
+  @override
+  String toString() {
+    return '$displayName ($phoneNumber)';
+  }
+}
 
 class CreateGroupScreen extends StatefulWidget {
   @override
@@ -12,14 +29,18 @@ class CreateGroupScreen extends StatefulWidget {
 
 class _CreateGroupScreenState extends State<CreateGroupScreen> {
   final TextEditingController _groupNameController = TextEditingController();
-  List<String> _selectedMembers = [];
+  List<ContactData> _selectedMembers = [];
+
   List<Contact> _contacts = [];
   List<Contact> _filteredContacts = [];
+  List<String> _contactsInDatabase = [];
 
   @override
   void initState() {
     super.initState();
     _requestContactsPermission();
+    _fetchContactsFromDatabase();
+    fetchUserData();
   }
 
   Future<void> _requestContactsPermission() async {
@@ -42,28 +63,77 @@ class _CreateGroupScreenState extends State<CreateGroupScreen> {
     });
   }
 
-  void _createGroup() {
+  void _createGroup() async {
     String groupName = _groupNameController.text.trim();
+    List<Map<String, String>> selectedMembersData = _selectedMembers
+        .map((contactData) => {
+              'displayName': contactData.displayName,
+              'phoneNumber': contactData.phoneNumber
+            })
+        .toList();
 
     if (groupName.isNotEmpty && _selectedMembers.isNotEmpty) {
-      final List<Map<String, dynamic>> selectedMembersData = _selectedMembers
-          .map((phoneNumber) => {'phoneNumber': phoneNumber})
-          .toList();
+      final String url = '$apiBaseUrl/expense-o/create_group.php';
 
-      FirebaseFirestore.instance.collection('groups').add({
-        'groupName': groupName,
-        'members': selectedMembersData,
-      }).then((value) {
-        print('Group created with ID: ${value.id}');
-        Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (context) => GroupDetailsScreen(groupId: value.id),
-          ),
-        );
-      }).catchError((error) {
-        print('Failed to create group: $error');
-      });
+      final response = await http.post(
+        Uri.parse(url),
+        body: {
+          'access_key': '5505',
+          'create_group': '1',
+          'groupName': groupName,
+          'creatorId': FirebaseAuth.instance.currentUser!.uid,
+          'selectedMembers': json.encode(selectedMembersData),
+        },
+      );
+
+      if (response.statusCode == 200) {
+        var responseData = json.decode(response.body);
+        if (!responseData['error']) {
+          // Group created successfully
+          int groupId = responseData['groupId'];
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => GroupDetailsScreen(groupId: groupId),
+            ),
+          );
+        } else {
+          // Error in group creation
+          print('Error: ${responseData['message']}');
+        }
+      } else {
+        // Error in HTTP request
+        print('Failed to create group: ${response.statusCode}');
+      }
+    }
+  }
+
+  Future<void> _fetchContactsFromDatabase() async {
+    final String url = '$apiBaseUrl/expense-o/get_numbers.php';
+    final response = await http.post(
+      Uri.parse(url),
+      body: {
+        'access_key': '5505',
+        'get_contacts': '1',
+      },
+    );
+
+    if (response.statusCode == 200) {
+      var responseData = json.decode(response.body) as Map<String, dynamic>;
+
+      if (responseData['error'] as bool) {
+        // Error in fetching contacts or empty data
+        print('Error: Unable to fetch contacts');
+      } else {
+        // Contacts fetched successfully
+        setState(() {
+          final data = (responseData['data'] as Map<String, dynamic>);
+          _contactsInDatabase = (data['contacts'] as List).cast<String>();
+        });
+      }
+    } else {
+      // Error in HTTP request
+      print('Failed to fetch contacts: ${response.statusCode}');
     }
   }
 
@@ -78,14 +148,64 @@ class _CreateGroupScreenState extends State<CreateGroupScreen> {
     });
   }
 
-  void _toggleMemberSelection(String phoneNumber) {
-    setState(() {
-      if (_selectedMembers.contains(phoneNumber)) {
-        _selectedMembers.remove(phoneNumber);
+  Future<void> fetchUserData() async {
+    final String apiUrl = '$apiBaseUrl/expense-o/fetch_name.php';
+    final User? currentUser = FirebaseAuth.instance.currentUser;
+    final String userId = currentUser?.uid ?? '';
+    final Map<String, dynamic> postData = {
+      'fetch_name': '1', // Change to appropriate key for fetching name
+      'access_key': '5505',
+      'user_id': userId, // Replace '123' with the actual user ID
+    };
+
+    final response = await http.post(
+      Uri.parse(apiUrl),
+      body: postData,
+    );
+
+    if (response.statusCode == 200) {
+      final responseData = json.decode(response.body);
+      if (responseData != null &&
+          responseData['error'] != null &&
+          responseData['error'] == 'false' &&
+          responseData['data'] != null) {
+        // Extract user data from response
+        setState(() {
+          // Update the state with user's phone number and username
+          _selectedMembers.add(ContactData(
+            displayName: responseData['data']['user_name'],
+            phoneNumber: responseData['data']['mobile'],
+          ));
+        });
       } else {
-        _selectedMembers.add(phoneNumber);
+        // Handle error
+        print('Failed to fetch user data');
       }
-    });
+    } else {
+      // Handle HTTP error
+      print('Failed to fetch user data: ${response.reasonPhrase}');
+    }
+  }
+
+ void _toggleMemberSelection(ContactData contact) {
+  setState(() {
+    final phoneNumber = contact.phoneNumber.replaceAll(' ', ''); // Remove spaces from phone number
+    if (_selectedMembers.any((member) => member.phoneNumber == phoneNumber)) {
+      _selectedMembers.removeWhere((member) => member.phoneNumber == phoneNumber);
+    } else {
+      _selectedMembers.add(ContactData(
+        displayName: contact.displayName,
+        phoneNumber: phoneNumber, // Use modified phone number without spaces
+      ));
+    }
+  });
+}
+
+
+  bool _isContactInDatabase(String phoneNumber) {
+    final phoneNumberWithoutSpaces = phoneNumber.replaceAll(' ', '');
+    return _contactsInDatabase.any(
+        (number) => number.replaceAll(' ', '') == phoneNumberWithoutSpaces);
   }
 
   @override
@@ -134,6 +254,7 @@ class _CreateGroupScreenState extends State<CreateGroupScreen> {
                   final phoneNumber = contact.phones?.isNotEmpty ?? false
                       ? contact.phones!.first.value ?? ''
                       : '';
+                  final name = contact.displayName ?? '';
 
                   return ListTile(
                     title: Text(
@@ -145,10 +266,20 @@ class _CreateGroupScreenState extends State<CreateGroupScreen> {
                       phoneNumber,
                       style: TextStyle(fontSize: 12),
                     ),
+                    trailing: _isContactInDatabase(phoneNumber)
+                        ? Text('')
+                        : ElevatedButton(
+                            onPressed: () {
+                              // Implement invitation functionality
+                            },
+                            child: Text('Invite'),
+                          ),
                     onTap: () {
-                      _toggleMemberSelection(phoneNumber);
+                      _toggleMemberSelection(ContactData(
+                          displayName: name, phoneNumber: phoneNumber));
                     },
-                    selected: _selectedMembers.contains(phoneNumber),
+                    selected: _selectedMembers
+                        .any((member) => member.phoneNumber == phoneNumber),
                     selectedTileColor: Color.fromARGB(255, 222, 219, 219),
                   );
                 },
