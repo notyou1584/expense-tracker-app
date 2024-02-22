@@ -104,7 +104,7 @@ Future<Map<String, dynamic>> userSignup(String accessKey, String firebaseId,
       final responseData = json.decode(response.body);
      
 
-      if (responseData['error'] == false) {
+      if (responseData['error'] == 'false') {
         // Note: Changed 'false' to false
         return {
           'success': true,

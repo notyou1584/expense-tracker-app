@@ -1,10 +1,12 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:demo222/api_constants.dart';
 import 'package:demo222/utils/ui/addgroup_expense.dart';
+import 'package:demo222/utils/ui/create_group.dart';
 import 'package:demo222/utils/ui/editandicons.dart';
 import 'package:demo222/utils/ui/expense_show.dart';
 import 'package:demo222/utils/ui/expense/addgroup.dart';
 import 'package:demo222/utils/ui/expense/expense_model.dart';
+import 'package:demo222/utils/ui/members.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
@@ -41,9 +43,16 @@ class _GroupDetailsScreenState extends State<GroupDetailsScreen> {
             IconButton(
               icon: const Icon(Icons.settings),
               onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                      builder: (context) =>
+                          MembersScreen(groupId: widget.groupId)),
+                );
                 // Handle settings icon press
               },
             ),
+            IconButton(icon: const Icon(Icons.person_add), onPressed: () {}),
           ],
           bottom: const TabBar(
             tabs: [
@@ -247,8 +256,28 @@ class _SettleUpScreenState extends State<SettleUpScreen> {
     return settlementMap;
   }
 
+  // Function to calculate the total paid amount for each member
+  Map<String, double> calculateTotalPaidAmount() {
+    Map<String, double> totalPaidAmount = {};
+
+    for (var member in groupMembers) {
+      totalPaidAmount[member['member_name']] = 0.0;
+    }
+
+    for (var expense in expenses) {
+      String payerMobile = expense['mobile'];
+      double amount = double.parse(expense['amount']);
+      totalPaidAmount[payerMobile] =
+          (totalPaidAmount[payerMobile] ?? 0.0) + amount;
+    }
+
+    return totalPaidAmount;
+  }
+
   @override
   Widget build(BuildContext context) {
+    Map<String, double> totalPaidAmount = calculateTotalPaidAmount();
+
     return Scaffold(
       body: groupMembers.isEmpty || expenses.isEmpty
           ? Center(
@@ -260,15 +289,25 @@ class _SettleUpScreenState extends State<SettleUpScreen> {
                 final member = groupMembers[index];
                 final double share =
                     divideExpensesEqually()[member['member_name']] ?? 0.0;
+                final double totalPaid =
+                    totalPaidAmount[member['mobile']] ?? 0.0;
+                final double amountToPay = share - totalPaid;
+                String paymentStatus =
+                    amountToPay >= 0 ? 'will Pay' : 'will Receive';
+                double displayAmount =
+                    amountToPay >= 0 ? amountToPay : -amountToPay;
+                Color textColor = amountToPay >= 0 ? Colors.red : Colors.green;
+
                 return Card(
-                  elevation: 2,
-                  margin: EdgeInsets.symmetric(vertical: 12.0),
+                  elevation: 1,
+                  margin: EdgeInsets.symmetric(vertical: 8.0, horizontal: 16.0),
                   child: ListTile(
-                    contentPadding: EdgeInsets.all(16.0),
+                    contentPadding:
+                        EdgeInsets.symmetric(vertical: 8.0, horizontal: 16.0),
                     dense: false,
                     leading: Container(
-                      width: 50,
-                      height: 50,
+                      width: 40,
+                      height: 40,
                       decoration: BoxDecoration(
                         color: Color.fromRGBO(30, 81, 85, 1),
                         borderRadius: BorderRadius.circular(25),
@@ -285,12 +324,19 @@ class _SettleUpScreenState extends State<SettleUpScreen> {
                             fontWeight: FontWeight.bold,
                           ),
                         ),
-                        SizedBox(height: 4),
+                        SizedBox(height: 1),
                         Text(
-                          '₹${share.toStringAsFixed(2)}',
+                          'Paid: ₹${totalPaid.toStringAsFixed(2)}',
                           style: TextStyle(
                             fontSize: 16,
                             color: Colors.grey[700],
+                          ),
+                        ),
+                        Text(
+                          '$paymentStatus: ₹${displayAmount.toStringAsFixed(2)}',
+                          style: TextStyle(
+                            fontSize: 16,
+                            color: textColor,
                           ),
                         ),
                       ],
