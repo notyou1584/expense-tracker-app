@@ -2,9 +2,12 @@ import 'package:demo222/utils/ui/editandicons.dart';
 import 'package:demo222/utils/ui/expense_show.dart';
 import 'package:demo222/utils/ui/expense/add.dart';
 import 'package:demo222/utils/ui/expense/expense_model.dart';
+import 'package:demo222/utils/ui/show_summary.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/svg.dart';
 import 'package:intl/intl.dart';
+import 'package:demo222/utils/ui/sliver.dart';
 
 class ExpenseList extends StatefulWidget {
   final String userId;
@@ -19,7 +22,7 @@ class _ExpenseListState extends State<ExpenseList> {
   Stream<List<Expense>> getExpensesStream(String userId) async* {
     yield []; // Yield an empty list initially
     while (true) {
-      await Future.delayed(Duration(seconds:0));
+      await Future.delayed(Duration(seconds: 0));
       try {
         List<Expense> expenses = await getExpenses(userId);
         yield expenses;
@@ -51,10 +54,11 @@ class _ExpenseListState extends State<ExpenseList> {
         }
 
         if (snapshot.connectionState == ConnectionState.waiting) {
-          return SizedBox.shrink();
+          return Center(child: CircularProgressIndicator());
         }
 
         List<Expense> expenses = snapshot.data ?? [];
+        expenses = expenses.length > 5 ? expenses.sublist(0, 5) : expenses;
 
         if (expenses.isEmpty) {
           return Center(
@@ -62,54 +66,61 @@ class _ExpenseListState extends State<ExpenseList> {
           );
         }
 
-        return ListView.builder(
-          itemCount: expenses.length,
-          itemBuilder: (context, index) {
-            Expense expense = expenses[index];
+        return Column(
+          children: expenses.map((expense) {
             String formattedDate = DateFormat('dd MMM').format(expense.date);
+            IconData iconData =
+                categoryIcons[expense.category]?['icon'] ?? Icons.category;
+            Color iconColor =
+                categoryIcons[expense.category]?['color'] ?? Colors.black;
 
-            return Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16.0),
-              child: Card(
-                margin: EdgeInsets.symmetric(vertical: 12.0),
-                elevation: 2,
-                child: ListTile(
-                  contentPadding: EdgeInsets.all(16.0),
-                  dense: false,
-                  leading: Icon(
-                    categoryIcons[expense.category] ?? Icons.category,
-                    size: 42.0,
-                  ),
-                  title: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
+            return Card(
+              margin: EdgeInsets.zero,
+              surfaceTintColor: Colors.white,
+              elevation: 0.5,
+              child: ListTile(
+                dense: false,
+                leading: Icon(
+                  iconData,
+                  size: 20.0,
+                  color: iconColor, // Set the icon color
+                ),
+                title: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Expanded(
+                      flex: 2,
+                      child: Text(
                         ' ${expense.description}',
                         style: TextStyle(
-                            fontSize: 18.0, fontWeight: FontWeight.bold),
+                            fontSize: 18.0, fontWeight: FontWeight.w500),
                       ),
-                    ],
-                  ),
-                  trailing: Column(
-                    crossAxisAlignment: CrossAxisAlignment.end,
-                    children: [
-                      Text(
-                        ' ${expense.amount} INR',
-                        style: TextStyle(fontSize: 18.0, color: Colors.red),
-                      ),
-                      Text(
+                    ),
+                    Expanded(
+                      flex: 2,
+                      child: Text(
                         ' $formattedDate',
                         style: TextStyle(fontSize: 14.0),
                       ),
-                    ],
-                  ),
-                  onTap: () => _showExpenseDetails(context, expense),
+                    ),
+                    Expanded(
+                      flex: 1,
+                      child: Text(
+                        '₹${expense.amount.toInt()}',
+                        style: TextStyle(fontSize: 16.0, color: Colors.black),
+                      ),
+                    ),
+                  ],
                 ),
+                onTap: () => _showExpenseDetails(context, expense),
               ),
             );
-          },
+          }).toList(),
         );
       },
     );
   }
 }
+
+

@@ -8,7 +8,6 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:demo222/utils/ui/editandicons.dart';
 
-final FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
 //add
 

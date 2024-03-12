@@ -1,10 +1,13 @@
+import 'dart:convert';
+import 'package:demo222/api_constants.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
+import 'package:intl/intl.dart';
 import 'package:datetime_picker_formfield_new/datetime_picker_formfield.dart';
 import 'package:demo222/utils/ui/expense/add.dart';
 import 'package:demo222/utils/ui/expense/expense_model.dart';
 import 'package:dropdown_search/dropdown_search.dart';
-import 'package:flutter/material.dart';
-
-import 'package:intl/intl.dart';
 
 class ExpenseForm extends StatefulWidget {
   final String? userId;
@@ -17,14 +20,46 @@ class _ExpenseFormState extends State<ExpenseForm> {
   final _formKey = GlobalKey<FormState>();
 
   late TextEditingController _amountController;
-  final _descriptionController =
-      TextEditingController(); // Set default currency
-  String _selectedCategory = 'Food';
+  final _descriptionController = TextEditingController();
+  late String _selectedCategory;
   DateTime _selectedDate = DateTime.now();
+  List<String> _userCategories = [];
+
   @override
   void initState() {
     super.initState();
+    _selectedCategory = '';
     _amountController = TextEditingController();
+    fetchUserCategories();
+  }
+
+  void fetchUserCategories() async {
+    final User? currentUser = FirebaseAuth.instance.currentUser;
+    final userId = currentUser?.uid ?? '';
+    final String url = '$apiBaseUrl/expense-o/fetch_usercategories.php';
+
+    final Map<String, dynamic> postData = {
+      'access_key': '5505',
+      'get_user_categories': '1',
+      'user_id': userId
+    };
+    final response = await http.post(Uri.parse(url), body: postData);
+
+    // Make HTTP request to fetch user-specific categories
+    // Replace 'userId' with the actual user ID
+
+    if (response.statusCode == 200) {
+      Map<String, dynamic> data = json.decode(response.body);
+      if (data['error'] == 'false') {
+        setState(() {
+          _userCategories = List<String>.from(data['categories']);
+        });
+      } else {
+        print("not found");
+      }
+    } else {
+      print("not connected");
+    }
   }
 
   @override
@@ -33,6 +68,9 @@ class _ExpenseFormState extends State<ExpenseForm> {
     final format = DateFormat("dd-MM-yyyy");
 
     return Scaffold(
+      appBar: AppBar(
+        title: Text('Add Expense', style: TextStyle(color: Colors.black)),
+      ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Form(
@@ -50,7 +88,7 @@ class _ExpenseFormState extends State<ExpenseForm> {
                   return null;
                 },
               ),
-              SizedBox(height: 16),
+              SizedBox(height: 12),
               TextFormField(
                 controller: _descriptionController,
                 decoration: InputDecoration(labelText: 'Description'),
@@ -61,21 +99,19 @@ class _ExpenseFormState extends State<ExpenseForm> {
                   return null;
                 },
               ),
-              SizedBox(height: 16),
+              SizedBox(height: 12),
               DropdownSearch<String>(
-                items: [
-                  'Food',
-                  'Transportation',
-                  'Shopping'
-                ], // Add more categories
+                items: _userCategories,
                 onChanged: (value) {
                   setState(() {
                     _selectedCategory = value!;
                   });
                 },
-                selectedItem: _selectedCategory,
+                selectedItem: _userCategories.isNotEmpty
+                    ? _userCategories.first
+                    : 'Others',
               ),
-              SizedBox(height: 16),
+              SizedBox(height: 12),
               DateTimeField(
                 format: format,
                 initialValue: _selectedDate.toLocal(),
@@ -99,7 +135,7 @@ class _ExpenseFormState extends State<ExpenseForm> {
                   });
                 },
               ),
-              SizedBox(height: 16),
+              SizedBox(height: 12),
               ElevatedButton(
                 style: ElevatedButton.styleFrom(
                     backgroundColor: Color.fromRGBO(30, 81, 85, 1)),

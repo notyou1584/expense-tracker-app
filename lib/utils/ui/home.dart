@@ -2,15 +2,14 @@ import 'package:demo222/utils/ui/expense_add.dart';
 import 'package:demo222/utils/ui/home_screen.dart';
 import 'package:demo222/utils/ui/profile_screen.dart';
 import 'package:demo222/utils/ui/reports_screen.dart';
+import 'package:demo222/utils/ui/sliver.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:demo222/utils/ui/group_screen.dart';
 
 class ExpenseTrackerHomeScreen extends StatefulWidget {
   final String? userId;
-  final String? phonenumber;
-
-  const ExpenseTrackerHomeScreen({Key? key, this.userId, this.phonenumber})
+  const ExpenseTrackerHomeScreen({Key? key, required this.userId})
       : super(key: key);
 
   @override
@@ -27,9 +26,12 @@ class _ExpenseTrackerHomeScreenState extends State<ExpenseTrackerHomeScreen> {
   void initState() {
     super.initState();
     _pages = <Widget>[
-      Container(key: PageStorageKey('page1'), child: HomeScreen()),
-      Container(key: PageStorageKey('page2'), child: AnalysisScreen()),
-      Container(key: PageStorageKey('page3'), child: GroupListWithCreateScreen()),
+      Container(
+          key: PageStorageKey('page1'),
+          child: HomeScreen(userId: widget.userId ?? '')),
+      Container(key: PageStorageKey('page2'), child: ExpenseAnalysisScreen()),
+      Container(
+          key: PageStorageKey('page3'), child: GroupListWithCreateScreen()),
       Container(key: PageStorageKey('page4'), child: UserProfileScreen()),
     ];
   }

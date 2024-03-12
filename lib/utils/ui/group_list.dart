@@ -46,7 +46,7 @@ class _GroupListScreenState extends State<GroupListScreen> {
               : null;
 
       if (responseData != null) {
-        setState(() {
+        setState(() { 
           groups = responseData;
         });
       } else {
@@ -71,6 +71,8 @@ class _GroupListScreenState extends State<GroupListScreen> {
                 final group = groups[index];
                 final groupId = int.parse(group['group_id']);
                 final groupName = group['group_name'];
+                final image = group['image'];
+                final _imageUrl = '$apiBaseUrl/expense-o/$image';
                 return GestureDetector(
                   onTap: () {
                     Navigator.push(
@@ -96,7 +98,22 @@ class _GroupListScreenState extends State<GroupListScreen> {
                             color: Color.fromRGBO(30, 81, 85, 1),
                             borderRadius: BorderRadius.circular(25),
                           ),
-                          child: Icon(Icons.group, color: Colors.white),
+                          child: CircleAvatar(
+                            radius: 30,
+                            backgroundColor: Colors.grey,
+                            backgroundImage: _imageUrl.isNotEmpty
+                                ? NetworkImage(
+                                    _imageUrl) // Load image if URL is not empty
+                                : null, // Otherwise, display null
+                            child: _imageUrl
+                                    .isEmpty // Show icon if image URL is empty
+                                ? Icon(
+                                    Icons.person,
+                                    size: 30,
+                                    color: Colors.white,
+                                  )
+                                : null,
+                          ),
                         ),
                         title: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,

@@ -174,6 +174,13 @@ class _MembersScreenState extends State<MembersScreen> {
                     ),
                   ],
                 ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () {
+          // Implement logic to add a member here
+       
+        },
+        child: Icon(Icons.add),
+      ),
     );
   }
 }

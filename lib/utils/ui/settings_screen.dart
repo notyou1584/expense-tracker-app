@@ -1,3 +1,5 @@
+import 'package:demo222/utils/ui/home_screen.dart';
+import 'package:demo222/utils/ui/sliver.dart';
 import 'package:flutter/material.dart';
 
 class SettingsScreen extends StatefulWidget {
@@ -28,23 +30,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
       body: ListView(
         padding: const EdgeInsets.all(16.0),
         children: [
-          _buildDropdownSettingItem(
-            title: 'Currency',
-            value: _selectedCurrency,
-            items: [
-              'INR',
-              'EUR',
-              'GBP',
-              'JPY',
-            ],
-            onChanged: (value) {
-              setState(() {
-                _selectedCurrency = value as String;
-                // Add functionality for currency setting
-                // Example: updateCurrency();
-              });
-            },
-          ),
           const Divider(),
           _buildSwitchSettingItem(
             title: 'Theme: Light',
@@ -73,7 +58,12 @@ class _SettingsScreenState extends State<SettingsScreen> {
           _buildSettingItem(
             title: 'Help',
             onTap: () {
-              
+                Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => Placeholder(),
+                      ),
+                    );
               // Add functionality for the Help feature
               // Example: navigateToHelpScreen();
             },

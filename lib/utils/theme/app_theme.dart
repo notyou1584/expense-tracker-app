@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import 'package:google_fonts/google_fonts.dart';
+
 class MyThemes {
   static final darkTheme = ThemeData(
     scaffoldBackgroundColor: Colors.grey.shade900,
@@ -9,10 +11,10 @@ class MyThemes {
   );
 
   static final lightTheme = ThemeData(
+    textTheme: GoogleFonts.montserratTextTheme(),
     scaffoldBackgroundColor: Colors.white,
     primaryColor: Colors.white,
     colorScheme: ColorScheme.light(),
     iconTheme: IconThemeData(color: Colors.red, opacity: 0.8),
   );
 }
-  

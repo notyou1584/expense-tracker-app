@@ -8,11 +8,75 @@ import 'package:dropdown_search/dropdown_search.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
-final Map<String, IconData> categoryIcons = {
-  'Food': Icons.fastfood,
-  'Transportation': Icons.directions_car,
-  'Shopping': Icons.shopping_cart,
-  'Utilities': Icons.electrical_services,
+final Map<String, Color> categoryColors = {
+  'Food': Colors.red.withOpacity(0.2),
+  'Transportation': Colors.blue.withOpacity(0.2),
+  'Shopping': Colors.orange.withOpacity(0.2),
+  'Utilities': Colors.purple.withOpacity(0.2),
+  'Custom': Colors.purple.withOpacity(0.2),
+  // Add colors for additional categories here
+};
+final Map<String, Map<String, dynamic>> categoryIcons = {
+  'Food': {
+    'icon': Icons.restaurant,
+    'color': Color(0xFFDE7A57), // Burnt Sienna
+  },
+  'Transportation': {
+    'icon': Icons.directions_car,
+    'color': Color(0xFF80A8B0), // Cadet Gray
+  },
+  'Shopping': {
+    'icon': Icons.shopping_cart,
+    'color': Color(0xFFE4D7D7), // Timberwolf
+  },
+  'Utilities': {
+    'icon': Icons.electrical_services,
+    'color': Color(0xFFE8E7E7), // Platinum
+  },
+  'Entertainment': {
+    'icon': Icons.movie,
+    'color': Color(0xFF171A14), // Eerie Black
+  },
+  'Healthcare': {
+    'icon': Icons.favorite,
+    'color': Color(0xFFC72D22), // Dark Red
+  },
+  'Education': {
+    'icon': Icons.school,
+    'color': Color(0xFF008080), // Teal
+  },
+  'Travel': {
+    'icon': Icons.flight,
+    'color': Color(0xFF9E4624), // Rust
+  },
+  'Housing': {
+    'icon': Icons.home,
+    'color': Color(0xFF574B3B), // Dark Taupe
+  },
+  'Groceries': {
+    'icon': Icons.local_grocery_store,
+    'color': Color(0xFF4CAF50), // Green
+  },
+  'Personal Care': {
+    'icon': Icons.spa,
+    'color': Color(0xFF1E88E5), // Blue
+  },
+  'Gifts & Donations': {
+    'icon': Icons.card_giftcard,
+    'color': Color(0xFF673AB7), // Purple
+  },
+  'Pets': {
+    'icon': Icons.pets,
+    'color': Color(0xFFEC407A), // Pink
+  },
+  'Insurance': {
+    'icon': Icons.security,
+    'color': Color(0xFFFFA000), // Orange
+  },
+  'Investments': {
+    'icon': Icons.trending_up,
+    'color': Color(0xFFFF5722), // Deep Orange
+  },
   // Add more categories and icons as needed
 };
 

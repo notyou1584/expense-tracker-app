@@ -122,6 +122,8 @@ class _GroupListWithCreateScreenState extends State<GroupListWithCreateScreen> {
                 final group = filteredGroups[index];
                 final groupId = int.parse(group['group_id']);
                 final groupName = group['group_name'];
+                final image = group['image'];
+                final _imageUrl = '$apiBaseUrl/expense-o/$image';
                 return GestureDetector(
                   onTap: () {
                     Navigator.push(
@@ -140,14 +142,21 @@ class _GroupListWithCreateScreenState extends State<GroupListWithCreateScreen> {
                       child: ListTile(
                         contentPadding: EdgeInsets.all(16.0),
                         dense: false,
-                        leading: Container(
-                          width: 50,
-                          height: 50,
-                          decoration: BoxDecoration(
-                            color: Color.fromRGBO(30, 81, 85, 1),
-                            borderRadius: BorderRadius.circular(25),
-                          ),
-                          child: Icon(Icons.group, color: Colors.white),
+                        leading: CircleAvatar(
+                          radius: 30,
+                          backgroundColor: Color(0xFF80A8B0),
+                          backgroundImage: _imageUrl.isNotEmpty
+                              ? NetworkImage(
+                                  _imageUrl) // Load image if URL is not empty
+                              : null, // Otherwise, display null
+                          child: image
+                                  .isEmpty // Show default icon if image URL is empty
+                              ? Icon(
+                                  Icons.group,
+                                  size: 30,
+                                  color: Colors.white,
+                                )
+                              : null,
                         ),
                         title: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,

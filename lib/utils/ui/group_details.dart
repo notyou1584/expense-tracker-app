@@ -1,7 +1,10 @@
+import 'dart:io';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:demo222/api_constants.dart';
 import 'package:demo222/utils/ui/addgroup_expense.dart';
 import 'package:demo222/utils/ui/create_group.dart';
+import 'package:demo222/utils/ui/edit_group.dart';
 import 'package:demo222/utils/ui/editandicons.dart';
 import 'package:demo222/utils/ui/expense_show.dart';
 import 'package:demo222/utils/ui/expense/addgroup.dart';
@@ -12,6 +15,10 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
+import 'package:fl_chart/fl_chart.dart';
+import 'package:csv/csv.dart';
+import 'package:path_provider/path_provider.dart';
+
 
 class GroupDetailsScreen extends StatefulWidget {
   final String? userId;
@@ -25,71 +32,161 @@ class GroupDetailsScreen extends StatefulWidget {
 }
 
 class _GroupDetailsScreenState extends State<GroupDetailsScreen> {
+  String image = '';
+  String _imageUrl = ''; // Initialize as empty
+
+  @override
+  void initState() {
+    super.initState();
+    // Call the userdata function to fetch user data when the screen is loaded
+    Groupsdata();
+     _imageUrl = "$apiBaseUrl/expense-o/uploads/image";
+  }
+
+  Future<void> Groupsdata() async {
+    final String apiUrl = '$apiBaseUrl/expense-o/get_group.php';
+    final Map<String, dynamic> postData = {
+      'fetch_name': '1', // Change to appropriate key for fetching name
+      'access_key': '5505',
+      'group_id':
+          widget.groupId.toString(), // Replace '123' with the actual user ID
+    };
+
+    final response = await http.post(
+      Uri.parse(apiUrl),
+      body: postData,
+    );
+
+    if (response.statusCode == 200) {
+      final responseData = json.decode(response.body);
+      print(responseData); // Print response data for debugging
+
+      if (responseData != null &&
+          responseData['error'] != null &&
+          responseData['error'] == 'false' &&
+          responseData['data'] != null) {
+        final String groupName = responseData['data']['group_name'];
+        image = responseData['data']['image'];
+        // Extract user data from response
+        setState(() {
+          _imageUrl = "$apiBaseUrl/expense-o/uploads/image";
+        });
+      } else {
+        // Handle error
+        print('Failed to fetch user data');
+      }
+    } else {
+      // Handle HTTP error
+      print('Failed to fetch user data: ${response.reasonPhrase}');
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
-    String userId = widget.userId ?? '';
-    return DefaultTabController(
-      length: 3,
-      child: Scaffold(
-        appBar: AppBar(
-          title: const Text('Group Details'),
-          leading: IconButton(
-            icon: const Icon(Icons.arrow_back),
-            onPressed: () {
-              Navigator.of(context).pop();
-            },
-          ),
-          actions: [
-            IconButton(
-              icon: const Icon(Icons.settings),
-              onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                      builder: (context) =>
-                          MembersScreen(groupId: widget.groupId)),
-                );
-                // Handle settings icon press
-              },
+    return Builder(
+      // Wrap the widget tree with a Builder widget
+      builder: (BuildContext context) {
+        return DefaultTabController(
+          length: 3,
+          child: Scaffold(
+            appBar: AppBar(
+              title: const Text('Group Details'),
+              leading: IconButton(
+                icon: const Icon(Icons.arrow_back),
+                onPressed: () {
+                  Navigator.of(context).pop();
+                },
+              ),
+              actions: [
+                IconButton(
+                  icon: const Icon(Icons.settings),
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (context) =>
+                              MembersScreen(groupId: widget.groupId)),
+                    );
+                    // Handle settings icon press
+                  },
+                ),
+                IconButton(
+                    icon: const Icon(Icons.person_add), onPressed: () {}),
+              ],
             ),
-            IconButton(icon: const Icon(Icons.person_add), onPressed: () {}),
-          ],
-          bottom: const TabBar(
-            tabs: [
-              Tab(text: 'Expenses'),
-              Tab(text: 'Settle Up'),
-              Tab(text: 'Reports'),
-            ],
-            indicatorColor: Color.fromRGBO(30, 81, 85, 1),
-            labelPadding: EdgeInsets.symmetric(horizontal: 20.0),
-          ),
-        ),
-        floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
-        floatingActionButton: SizedBox(
-          width: 200,
-          child: FloatingActionButton(
-            onPressed: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                    builder: (context) =>
-                        AddExpenseScreen(groupId: widget.groupId)),
-              );
-            },
-            child: Text(
-              'Add Expense',
-              style: TextStyle(fontSize: 20),
+            floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
+            floatingActionButton: SizedBox(
+              width: 200,
+              child: FloatingActionButton(
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                        builder: (context) =>
+                            AddExpenseScreen(groupId: widget.groupId)),
+                  );
+                },
+                child: Text(
+                  'Add Expense',
+                  style: TextStyle(fontSize: 20),
+                ),
+              ),
+            ),
+            body: Column(
+              children: [
+                Container( // Add margin from the top
+                  width: 200,
+                  height: 200,
+                  decoration: BoxDecoration(
+                      shape: BoxShape.rectangle,
+                      color: Color(0xFF80A8B0),
+                      image: DecorationImage(
+                        image: NetworkImage(_imageUrl),
+                        fit: BoxFit.fill,
+                      )),
+                  child: _imageUrl.isEmpty
+                      ? IconButton(
+                          icon: Icon(
+                            Icons.group,
+                            size: 50,
+                            color: Colors.white,
+                          ),
+                          onPressed: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => AddGroupImageScreen(
+                                    groupId: widget.groupId),
+                              ),
+                            );
+                          },
+                        )
+                      : null,
+                ),
+                const TabBar(
+                  tabs: [
+                    Tab(text: 'Expenses'),
+                    Tab(text: 'Settle Up'),
+                    Tab(text: 'Reports'),
+                  ],
+                  indicatorColor: Color.fromRGBO(30, 81, 85, 1),
+                  labelPadding: EdgeInsets.symmetric(horizontal: 20.0),
+                ),
+                Expanded(
+                  child: TabBarView(
+                    children: [
+                      GroupExpenseScreen(
+                          groupId: widget.groupId), // Pass groupId
+                      SettleUpScreen(groupId: widget.groupId), // Pass groupId
+                      groupAnalysisScreen(groupId: widget.groupId),
+                    ],
+                  ),
+                ),
+              ],
             ),
           ),
-        ),
-        body: TabBarView(
-          children: [
-            GroupExpenseScreen(groupId: widget.groupId), // Pass groupId
-            SettleUpScreen(groupId: widget.groupId), // Pass groupId
-            Center(child: Text('Reports Content')),
-          ],
-        ),
-      ),
+        );
+      },
     );
   }
 }
@@ -148,14 +245,29 @@ class GroupExpenseScreen extends StatelessWidget {
             Expense expense = expenses[index];
             String formattedDate = DateFormat('dd MMM').format(expense.date);
 
+            IconData iconData =
+                categoryIcons[expense.category]?['icon'] ?? Icons.category;
+            Color iconColor =
+                categoryIcons[expense.category]?['color'] ?? Colors.black;
+
             return Card(
               margin: EdgeInsets.symmetric(vertical: 8.0),
               child: ListTile(
                 contentPadding: EdgeInsets.all(20.0),
                 dense: false,
-                leading: Icon(
-                  categoryIcons[expense.category] ?? Icons.category,
-                  size: 42.0,
+                leading: Container(
+                  width: 50,
+                  height: 50,
+                  decoration: BoxDecoration(
+                    color: (categoryColors[expense.category] ??
+                        Color.fromRGBO(0, 0, 0, 0.1)),
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                  child: Icon(
+                    iconData,
+                    size: 42.0,
+                    color: iconColor, // Set the icon color
+                  ),
                 ),
                 title: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -196,8 +308,10 @@ class SettleUpScreen extends StatefulWidget {
 }
 
 class _SettleUpScreenState extends State<SettleUpScreen> {
-  List<dynamic> groupMembers = []; // List to hold group members
-  List<dynamic> expenses = []; // List to hold group expenses
+  ExpenseDivision _selectedDivision = ExpenseDivision.equally;
+  List<dynamic> groupMembers = [];
+  List<dynamic> expenses = [];
+  Map<String, double> memberPercentages = {};
 
   @override
   void initState() {
@@ -256,7 +370,22 @@ class _SettleUpScreenState extends State<SettleUpScreen> {
     return settlementMap;
   }
 
-  // Function to calculate the total paid amount for each member
+  Map<String, double> divideExpensesByPercentage(
+      Map<String, double> percentages) {
+    final totalExpenses = expenses
+        .map<double>((e) => double.parse(e['amount']))
+        .reduce((a, b) => a + b);
+    final Map<String, double> settlementMap = {};
+
+    for (var member in groupMembers) {
+      final percentage = percentages[member['member_name']] ?? 0.0;
+      final share = totalExpenses * percentage / 100;
+      settlementMap[member['member_name']] = share;
+    }
+
+    return settlementMap;
+  }
+
   Map<String, double> calculateTotalPaidAmount() {
     Map<String, double> totalPaidAmount = {};
 
@@ -279,72 +408,543 @@ class _SettleUpScreenState extends State<SettleUpScreen> {
     Map<String, double> totalPaidAmount = calculateTotalPaidAmount();
 
     return Scaffold(
+      appBar: AppBar(
+        automaticallyImplyLeading: false,
+        actions: [
+          PopupMenuButton<ExpenseDivision>(
+            onSelected: (value) {
+              setState(() {
+                _selectedDivision = value!;
+              });
+            },
+            itemBuilder: (BuildContext context) =>
+                <PopupMenuEntry<ExpenseDivision>>[
+              PopupMenuItem<ExpenseDivision>(
+                value: ExpenseDivision.equally,
+                child: Text('Equally'),
+              ),
+              PopupMenuItem<ExpenseDivision>(
+                value: ExpenseDivision.byPercentage,
+                child: Text('By Percentage'),
+              ),
+            ],
+          ),
+        ],
+      ),
       body: groupMembers.isEmpty || expenses.isEmpty
           ? Center(
               child: Text('No settlements yet.'),
             )
-          : ListView.builder(
-              itemCount: groupMembers.length,
-              itemBuilder: (context, index) {
-                final member = groupMembers[index];
-                final double share =
-                    divideExpensesEqually()[member['member_name']] ?? 0.0;
-                final double totalPaid =
-                    totalPaidAmount[member['mobile']] ?? 0.0;
-                final double amountToPay = share - totalPaid;
-                String paymentStatus =
-                    amountToPay >= 0 ? 'will Pay' : 'will Receive';
-                double displayAmount =
-                    amountToPay >= 0 ? amountToPay : -amountToPay;
-                Color textColor = amountToPay >= 0 ? Colors.red : Colors.green;
+          : Column(
+              children: [
+                if (_selectedDivision == ExpenseDivision.byPercentage)
+                  _buildPercentageInput(),
+                Expanded(
+                  child: ListView.builder(
+                    itemCount: groupMembers.length,
+                    itemBuilder: (context, index) {
+                      final member = groupMembers[index];
+                      double share = 0.0;
 
-                return Card(
-                  elevation: 1,
-                  margin: EdgeInsets.symmetric(vertical: 8.0, horizontal: 16.0),
-                  child: ListTile(
-                    contentPadding:
-                        EdgeInsets.symmetric(vertical: 8.0, horizontal: 16.0),
-                    dense: false,
-                    leading: Container(
-                      width: 40,
-                      height: 40,
-                      decoration: BoxDecoration(
-                        color: Color.fromRGBO(30, 81, 85, 1),
-                        borderRadius: BorderRadius.circular(25),
-                      ),
-                      child: Icon(Icons.person, color: Colors.white),
-                    ),
-                    title: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
+                      if (_selectedDivision == ExpenseDivision.equally) {
+                        share =
+                            divideExpensesEqually()[member['member_name']] ??
+                                0.0;
+                      } else if (_selectedDivision ==
+                          ExpenseDivision.byPercentage) {
+                        share = divideExpensesByPercentage(
+                                memberPercentages)[member['member_name']] ??
+                            0.0;
+                      }
+
+                      final double totalPaid =
+                          totalPaidAmount[member['mobile']] ?? 0.0;
+                      final double amountToPay = share - totalPaid;
+                      String paymentStatus =
+                          amountToPay >= 0 ? 'will Pay' : 'will Receive';
+                      double displayAmount =
+                          amountToPay >= 0 ? amountToPay : -amountToPay;
+                      Color textColor =
+                          amountToPay >= 0 ? Colors.red : Colors.green;
+
+                      return Card(
+                        elevation: 1,
+                        margin: EdgeInsets.symmetric(
+                            vertical: 8.0, horizontal: 16.0),
+                        child: ListTile(
+                          contentPadding: EdgeInsets.symmetric(
+                              vertical: 8.0, horizontal: 16.0),
+                          dense: false,
+                          leading: Container(
+                            width: 40,
+                            height: 40,
+                            decoration: BoxDecoration(
+                              color: Color.fromRGBO(30, 81, 85, 1),
+                              borderRadius: BorderRadius.circular(25),
+                            ),
+                            child: Icon(Icons.person, color: Colors.white),
+                          ),
+                          title: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                member['member_name'],
+                                style: TextStyle(
+                                  fontSize: 18,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                              SizedBox(height: 1),
+                              Text(
+                                'Paid: ₹${totalPaid.toStringAsFixed(2)}',
+                                style: TextStyle(
+                                  fontSize: 16,
+                                  color: Colors.grey[700],
+                                ),
+                              ),
+                              Text(
+                                '$paymentStatus: ₹${displayAmount.toStringAsFixed(2)}',
+                                style: TextStyle(
+                                  fontSize: 16,
+                                  color: textColor,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      );
+                    },
+                  ),
+                ),
+              ],
+            ),
+    );
+  }
+
+  Widget _buildPercentageInput() {
+    return Padding(
+      padding: const EdgeInsets.all(8.0),
+      child: Column(
+        children: [
+          Text('Enter percentage for each member:'),
+          SizedBox(height: 10),
+          for (var member in groupMembers)
+            Row(
+              children: [
+                Text(member['member_name'] + ':'),
+                SizedBox(width: 10),
+                Expanded(
+                  child: TextFormField(
+                    keyboardType: TextInputType.number,
+                    onChanged: (value) {
+                      setState(() {
+                        memberPercentages[member['member_name']] =
+                            double.tryParse(value) ?? 0.0;
+                      });
+                    },
+                  ),
+                ),
+              ],
+            ),
+        ],
+      ),
+    );
+  }
+}
+
+enum ExpenseDivision { equally, byPercentage, byMembers }
+
+class groupAnalysisScreen extends StatefulWidget {
+  final int groupId;
+  const groupAnalysisScreen({Key? key, required this.groupId})
+      : super(key: key);
+  @override
+  _groupAnalysisScreenState createState() => _groupAnalysisScreenState();
+}
+
+class _groupAnalysisScreenState extends State<groupAnalysisScreen> {
+  DateTime fromDate = DateTime.now().subtract(Duration(days: 30));
+  DateTime toDate = DateTime.now();
+
+  Future<List<Expense>> getgroupExpenses() async {
+    final String apiUrl = '$apiBaseUrl/expense-o/get_groupexpenses.php';
+    final Map<String, dynamic> postData = {
+      'get_groupexpenses': '1',
+      'access_key': '5505',
+      'group_id': widget.groupId.toString()
+    };
+
+    final response = await http.post(
+      Uri.parse(apiUrl),
+      body: postData,
+    );
+
+    if (response.statusCode == 200) {
+      final Map<String, dynamic> responseData = jsonDecode(response.body);
+
+      if (responseData.containsKey('data')) {
+        final List<dynamic> expenseData = responseData['data'];
+        return expenseData.map((data) {
+          return Expense(
+              id: data['expense_id'],
+              userId: data['user_id'],
+              amount: double.parse(data['amount'].toString()),
+              description: data['description'],
+              category: data['category'],
+              date: DateTime.parse(data['date']),
+              groupId: int.parse(data['group_id'].toString()));
+        }).toList();
+      } else {
+        return [];
+      }
+    } else {
+      return [];
+    }
+  }
+
+  Future<void> _selectDate(BuildContext context, bool isFromDate) async {
+    final initialDate = isFromDate ? fromDate : toDate;
+    final DateTime? picked = await showDatePicker(
+      context: context,
+      initialDate: initialDate,
+      firstDate: DateTime(DateTime.now().year),
+      lastDate: DateTime.now(),
+      initialDatePickerMode: DatePickerMode.day,
+    );
+    if (picked != null && picked != (isFromDate ? fromDate : toDate)) {
+      setState(() {
+        if (isFromDate) {
+          fromDate = DateTime(picked.year, picked.month, picked.day);
+        } else {
+          toDate = DateTime(picked.year, picked.month, picked.day);
+        }
+      });
+    }
+  }
+
+  Future<void> _exportToCSV(List<Expense> expenses) async {
+    // Create a list to hold the CSV rows
+    List<List<dynamic>> rows = [];
+
+    // Add header row
+    rows.add(['Date', 'Category', 'Description', 'Amount']);
+
+    // Add expense data
+    expenses.forEach((expense) {
+      rows.add([
+        DateFormat('yyyy-MM-dd').format(expense.date),
+        expense.category,
+        expense.description,
+        expense.amount.toString(),
+      ]);
+    });
+
+    // Generate CSV content
+    String csvContent = const ListToCsvConverter().convert(rows);
+
+    // Get the device's documents directory
+    Directory documentsDirectory = await getApplicationDocumentsDirectory();
+
+    // Create a file to save the CSV
+    File file = File('${documentsDirectory.path}/expenses.csv');
+
+    // Write CSV content to the file
+    await file.writeAsString(csvContent);
+
+    // Show a dialog to inform the user that the CSV has been saved
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text('Export Complete'),
+          content: Text('CSV file saved to ${file.path}'),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.pop(context);
+              },
+              child: Text('OK'),
+            ),
+            TextButton(
+              onPressed: () async {
+                Directory directory = await getApplicationDocumentsDirectory();
+                String filePath = '${directory.path}/data.csv';
+                File file = File(filePath);
+                await file.open();
+              },
+              child: Text('OPEN'),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        automaticallyImplyLeading: false,
+        actions: [
+          IconButton(
+            icon: Icon(Icons.file_download),
+            onPressed: () async {
+              // Get expenses data
+              List<Expense> expenses = await getgroupExpenses();
+              // Export data to CSV
+              await _exportToCSV(expenses);
+            },
+          ),
+        ],
+      ),
+      body: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Container(
+              width: MediaQuery.of(context).size.width / 2,
+              margin: EdgeInsets.all(5),
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(10),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.grey.withOpacity(0.4),
+                    spreadRadius: 0.1,
+                    blurRadius: 2,
+                    offset: Offset(0, 2),
+                  ),
+                ],
+                color: Color.fromARGB(
+                    82, 128, 168, 176), // Set your desired background color
+              ),
+              height: 60,
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  SizedBox(width: 10),
+                  GestureDetector(
+                    onTap: () => _selectDate(context, true),
+                    child: Column(
                       children: [
-                        Text(
-                          member['member_name'],
-                          style: TextStyle(
-                            fontSize: 18,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                        SizedBox(height: 1),
-                        Text(
-                          'Paid: ₹${totalPaid.toStringAsFixed(2)}',
-                          style: TextStyle(
-                            fontSize: 16,
-                            color: Colors.grey[700],
-                          ),
-                        ),
-                        Text(
-                          '$paymentStatus: ₹${displayAmount.toStringAsFixed(2)}',
-                          style: TextStyle(
-                            fontSize: 16,
-                            color: textColor,
-                          ),
-                        ),
+                        Text('From',
+                            style: TextStyle(
+                                fontSize: 16,
+                                color: Colors.white,
+                                fontWeight: FontWeight.w900)),
+                        Text('${DateFormat('MMM yyyy').format(fromDate)}',
+                            style: TextStyle(
+                                fontSize: 16,
+                                color: Colors.white,
+                                fontWeight: FontWeight.w900)),
                       ],
                     ),
                   ),
-                );
-              },
+                  SizedBox(width: 10),
+                  Center(
+                    child: Container(
+                      width: 1, // Divider width
+                      height: 40,
+                      color: Colors.grey, // Divider color
+                    ),
+                  ),
+                  SizedBox(width: 10),
+                  GestureDetector(
+                    onTap: () => _selectDate(context, false),
+                    child: Column(
+                      children: [
+                        Text('To',
+                            style: TextStyle(
+                                fontSize: 16,
+                                color: Colors.white,
+                                fontWeight: FontWeight.w900)),
+                        Text('${DateFormat('MMM yyyy').format(fromDate)}',
+                            style: TextStyle(
+                                fontSize: 16,
+                                color: Colors.white,
+                                fontWeight: FontWeight.w900)),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
             ),
+            SizedBox(height: 50),
+            Expanded(
+              child: FutureBuilder(
+                future: getgroupExpenses(),
+                builder: (context, snapshot) {
+                  if (snapshot.connectionState == ConnectionState.waiting) {
+                    return Center(
+                      child: CircularProgressIndicator(),
+                    );
+                  } else if (snapshot.hasError) {
+                    return Center(
+                      child: Text('Error: ${snapshot.error}'),
+                    );
+                  } else {
+                    List<Expense> expenses = snapshot.data as List<Expense>;
+                    return _buildPieChart(expenses);
+                  }
+                },
+              ),
+            ),
+            SizedBox(height: 50),
+            Expanded(
+              child: FutureBuilder(
+                future: getgroupExpenses(),
+                builder: (context, snapshot) {
+                  if (snapshot.connectionState == ConnectionState.waiting) {
+                    return Center(
+                      child: CircularProgressIndicator(),
+                    );
+                  } else if (snapshot.hasError) {
+                    return Center(
+                      child: Text('Error: ${snapshot.error}'),
+                    );
+                  } else {
+                    List<Expense> expenses = snapshot.data as List<Expense>;
+                    return _buildLinearIndicators(expenses);
+                  }
+                },
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildPieChart(List<Expense> expenses) {
+    // Filter expenses based on selected date range
+    expenses = expenses
+        .where((expense) =>
+            expense.date.isAfter(fromDate) && expense.date.isBefore(toDate))
+        .toList();
+
+    // Calculate category-wise totals
+    Map<String, double> categoryTotals = {};
+    double totalAmount = 0;
+
+    expenses.forEach((expense) {
+      categoryTotals[expense.category] =
+          (categoryTotals[expense.category] ?? 0) + expense.amount;
+      totalAmount += expense.amount;
+    });
+
+    // Calculate percentages
+    Map<String, double> categoryPercentages = {};
+    categoryTotals.forEach((category, amount) {
+      categoryPercentages[category] = (amount / totalAmount) * 100;
+    });
+
+    // Create pie chart data
+    List<PieChartSectionData> pieChartSections = [];
+    List<Color> colors = [
+      Color.fromARGB(255, 232, 174, 153),
+      Color(0xFF80a8b0),
+      Color.fromARGB(255, 231, 183, 183),
+      Color.fromARGB(255, 130, 97, 97),
+      Color(0xFF171a14),
+    ];
+    int colorIndex = 0;
+    categoryPercentages.forEach((category, percentage) {
+      pieChartSections.add(
+        PieChartSectionData(
+          radius: 80,
+          color: colors[colorIndex % colors.length],
+          value: percentage,
+          title: '$category\n${percentage.toStringAsFixed(2)}%',
+          titleStyle: TextStyle(
+              fontSize: 12, color: Colors.white, fontWeight: FontWeight.bold),
+        ),
+      );
+      colorIndex++;
+    });
+
+    return Container(
+      padding: EdgeInsets.all(8),
+      child: AspectRatio(
+        aspectRatio: 1,
+        child: PieChart(
+          PieChartData(
+            sections: pieChartSections,
+            borderData: FlBorderData(show: true),
+            centerSpaceRadius: 50,
+            sectionsSpace: 4,
+            startDegreeOffset: 90,
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildLinearIndicators(List<Expense> expenses) {
+    // Filter expenses based on selected date range
+    expenses = expenses
+        .where((expense) =>
+            expense.date.isAfter(fromDate) && expense.date.isBefore(toDate))
+        .toList();
+
+    // Calculate category-wise totals
+    Map<String, double> categoryTotals = {};
+    double totalAmount = 0;
+
+    expenses.forEach((expense) {
+      categoryTotals[expense.category] =
+          (categoryTotals[expense.category] ?? 0) + expense.amount;
+      totalAmount += expense.amount;
+    });
+
+    // Calculate percentages
+    Map<String, double> categoryPercentages = {};
+    categoryTotals.forEach((category, amount) {
+      categoryPercentages[category] = (amount / totalAmount) * 100;
+    });
+
+    // Create linear indicator widgets
+    List<Widget> indicators = [];
+    List<Color> colors = [
+      Color.fromARGB(255, 232, 174, 153),
+      Color(0xFF80a8b0),
+      Color.fromARGB(255, 231, 183, 183),
+      Color.fromARGB(255, 130, 97, 97),
+      Color(0xFF171a14),
+    ];
+    int colorIndex = 0;
+    categoryPercentages.forEach((category, percentage) {
+      indicators.add(
+        ListTile(
+          title: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text('$category'),
+              Text(
+                  'Total spent: \₹${categoryTotals[category]!.toStringAsFixed(0)}'),
+            ],
+          ),
+          subtitle: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              SizedBox(height: 4),
+              LinearProgressIndicator(
+                borderRadius: BorderRadius.circular(5),
+                minHeight: 10,
+                backgroundColor: Colors.grey[300],
+                valueColor: AlwaysStoppedAnimation<Color>(
+                    colors[colorIndex % colors.length]),
+                value: percentage / 100,
+              ),
+            ],
+          ),
+        ),
+      );
+      colorIndex++;
+    });
+
+    return ListView(
+      children: indicators,
     );
   }
 }

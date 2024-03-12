@@ -4,10 +4,28 @@ import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:demo222/utils/ui/home.dart';
+import 'package:image_picker/image_picker.dart';
+import 'dart:io';
 
-class AddUsernameScreen extends StatelessWidget {
+class AddUsernameScreen extends StatefulWidget {
+  @override
+  _AddUsernameScreenState createState() => _AddUsernameScreenState();
+}
+
+class _AddUsernameScreenState extends State<AddUsernameScreen> {
   final TextEditingController _usernameController = TextEditingController();
   final TextEditingController _emailController = TextEditingController();
+  File? _image;
+
+  Future<void> _pickImage() async {
+    final pickedFile =
+        await ImagePicker().pickImage(source: ImageSource.gallery);
+    if (pickedFile != null) {
+      setState(() {
+        _image = File(pickedFile.path);
+      });
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -22,6 +40,33 @@ class AddUsernameScreen extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             SizedBox(height: 80.0),
+            GestureDetector(
+              onTap: _pickImage,
+              child: Container(
+                height: 100,
+                width: 100,
+                decoration: BoxDecoration(
+                  color: Colors.grey[200],
+                  borderRadius: BorderRadius.circular(50),
+                ),
+                child: _image != null
+                    ? ClipRRect(
+                        borderRadius: BorderRadius.circular(50),
+                        child: Image.file(
+                          _image!,
+                          height: 100,
+                          width: 100,
+                          fit: BoxFit.cover,
+                        ),
+                      )
+                    : Icon(
+                        Icons.add_photo_alternate,
+                        size: 40,
+                        color: Colors.grey[600],
+                      ),
+              ),
+            ),
+            SizedBox(height: 16.0),
             TextField(
               controller: _usernameController,
               decoration: InputDecoration(
@@ -43,39 +88,13 @@ class AddUsernameScreen extends StatelessWidget {
                 backgroundColor: Color.fromRGBO(30, 81, 85, 1),
               ),
               onPressed: () async {
-                String username = _usernameController.text.trim();
-                String email = _emailController.text.trim();
-                if (username.isNotEmpty && email.isNotEmpty) {
-                  User? user = FirebaseAuth.instance.currentUser;
-                  String? user_id = user?.uid;
-
-                  if (user_id != null) {
-                    // Call userdata function to save data
-                    userdata(user_id, username, email);
-
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(
-                        content: Text('Username and Email saved successfully!'),
-                      ),
-                    );
-
-                    // Navigate to home screen and pass the username as a parameter
-                    Navigator.pushReplacement(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => ExpenseTrackerHomeScreen(),
-                      ),
-                    );
-                  } else {
-                    print('User phone number not available.');
-                  }
-                } else {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(
-                      content: Text('Please enter a valid email and username.'),
-                    ),
-                  );
-                }
+                final User? currentUser = FirebaseAuth.instance.currentUser;
+                final String userId = currentUser?.uid ?? '';
+                final String username = _usernameController.text;
+                final String email = _emailController.text;
+                userdata(userId, username, email, _image);
+                Navigator.pushReplacementNamed(context, '/categories');
+                // Your existing onPressed logic
               },
               child: Text(
                 'Save Username',

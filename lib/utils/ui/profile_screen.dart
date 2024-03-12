@@ -18,6 +18,7 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
   final TextEditingController _usernameController = TextEditingController();
   String _username = ''; // Initialize as empty
   String _email = ''; // Initialize as empty
+  String _imageUrl = ''; // Initialize as empty
 
   @override
   void initState() {
@@ -51,6 +52,8 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
         setState(() {
           _username = responseData['data']['user_name'];
           _email = responseData['data']['email'];
+          final String image = responseData['data']['image'];
+          _imageUrl = "$apiBaseUrl/expense-o/$image";
         });
       } else {
         // Handle error
@@ -84,18 +87,25 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
                       context,
                       MaterialPageRoute(
                         builder: (context) => EditProfileScreen(
-                            username: _username, email: _email),
+                          username: _username,
+                          email: _email,
+                          imageUrl: _imageUrl,
+                        ),
                       ),
                     );
                   },
                   child: CircleAvatar(
-                    radius: 30,
+                    radius: 60,
                     backgroundColor: Colors.grey,
-                    child: Icon(
-                      Icons.person,
-                      size: 30,
-                      color: Colors.white,
-                    ),
+                    backgroundImage:
+                        _imageUrl.isNotEmpty ? NetworkImage(_imageUrl) : null,
+                    child: _imageUrl.isEmpty
+                        ? Icon(
+                            Icons.person,
+                            size: 60,
+                            color: Colors.white,
+                          )
+                        : null,
                   ),
                 ),
                 const SizedBox(width: 16),
@@ -107,43 +117,35 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
                         'Username:',
                         style: TextStyle(
                           fontWeight: FontWeight.bold,
-                          fontSize: 18,
+                          fontSize: 24,
                         ),
                       ),
                       const SizedBox(height: 8),
                       Text(
                         _username,
-                        style: const TextStyle(fontSize: 16),
+                        style: const TextStyle(fontSize: 20),
                       ),
                     ],
                   ),
                 ),
               ],
             ),
-
             const Divider(),
             ListTile(
-              title: const Text('Settings'),
-              leading: const Icon(Icons.settings),
+              title: const Text('Edit Profile'),
+              leading: const Icon(Icons.edit),
               onTap: () {
+                // Navigate to edit profile screen
                 Navigator.push(
                   context,
                   MaterialPageRoute(
-                      builder: (context) => const SettingsScreen()),
+                    builder: (context) => EditProfileScreen(
+                      username: _username,
+                      email: _email,
+                      imageUrl: _imageUrl,
+                    ),
+                  ),
                 );
-                // Add functionality for Settings
-                // You can navigate to the settings screen or perform other actions.
-                // Example: navigateToSettingsScreen();
-              },
-            ),
-            const Divider(),
-            ListTile(
-              title: const Text('Export Data'),
-              leading: const Icon(Icons.file_download),
-              onTap: () {
-                // Add functionality to export data
-                // You can call a function here to export user data.
-                // Example: exportUserData();
               },
             ),
             const Divider(),
@@ -153,14 +155,8 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
               onTap: () {
                 FirebaseAuth.instance.signOut();
                 Navigator.pushReplacementNamed(context, '/auth');
-                // Add logout functionality
-                // You can navigate to another screen or perform other actions.
-                // Example: navigateToLoginScreen();
               },
             ),
-            // Other options
-            // Settings, Export Data, Logout
-            // Add your ListTile widgets here
           ],
         ),
       ),

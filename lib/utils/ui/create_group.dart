@@ -187,20 +187,21 @@ class _CreateGroupScreenState extends State<CreateGroupScreen> {
     }
   }
 
- void _toggleMemberSelection(ContactData contact) {
-  setState(() {
-    final phoneNumber = contact.phoneNumber.replaceAll(' ', ''); // Remove spaces from phone number
-    if (_selectedMembers.any((member) => member.phoneNumber == phoneNumber)) {
-      _selectedMembers.removeWhere((member) => member.phoneNumber == phoneNumber);
-    } else {
-      _selectedMembers.add(ContactData(
-        displayName: contact.displayName,
-        phoneNumber: phoneNumber, // Use modified phone number without spaces
-      ));
-    }
-  });
-}
-
+  void _toggleMemberSelection(ContactData contact) {
+    setState(() {
+      final phoneNumber = contact.phoneNumber
+          .replaceAll(' ', ''); // Remove spaces from phone number
+      if (_selectedMembers.any((member) => member.phoneNumber == phoneNumber)) {
+        _selectedMembers
+            .removeWhere((member) => member.phoneNumber == phoneNumber);
+      } else {
+        _selectedMembers.add(ContactData(
+          displayName: contact.displayName,
+          phoneNumber: phoneNumber, // Use modified phone number without spaces
+        ));
+      }
+    });
+  }
 
   bool _isContactInDatabase(String phoneNumber) {
     final phoneNumberWithoutSpaces = phoneNumber.replaceAll(' ', '');

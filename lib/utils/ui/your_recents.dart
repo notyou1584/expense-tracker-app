@@ -71,39 +71,50 @@ class recents extends StatelessWidget {
             itemBuilder: (context, index) {
               Expense expense = expenses[index];
               String formattedDate = DateFormat('dd MMM').format(expense.date);
+              IconData iconData =
+                  categoryIcons[expense.category]?['icon'] ?? Icons.category;
+              Color iconColor =
+                  categoryIcons[expense.category]?['color'] ?? Colors.black;
 
               return Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 16.0),
                 child: Card(
-                  margin: EdgeInsets.symmetric(vertical: 12.0),
-                  elevation: 2,
+                  margin: EdgeInsets.zero,
+                  surfaceTintColor: Colors.white,
+                  elevation: 0.5,
                   child: ListTile(
-                    contentPadding: EdgeInsets.all(16.0),
                     dense: false,
                     leading: Icon(
-                      categoryIcons[expense.category] ?? Icons.category,
-                      size: 42.0,
+                      iconData,
+                      size: 20.0,
+                      color: iconColor, // Set the icon color
                     ),
-                    title: Column(
+                    title: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text(
-                          ' ${expense.description}',
-                          style: TextStyle(
-                              fontSize: 18.0, fontWeight: FontWeight.bold),
+                        Expanded(
+                          flex: 2,
+                          child: Text(
+                            ' ${expense.description}',
+                            style: TextStyle(
+                                fontSize: 18.0, fontWeight: FontWeight.w500),
+                          ),
                         ),
-                      ],
-                    ),
-                    trailing: Column(
-                      crossAxisAlignment: CrossAxisAlignment.end,
-                      children: [
-                        Text(
-                          ' ${expense.amount} INR',
-                          style: TextStyle(fontSize: 18.0, color: Colors.red),
+                        Expanded(
+                          flex: 2,
+                          child: Text(
+                            ' $formattedDate',
+                            style: TextStyle(fontSize: 14.0),
+                          ),
                         ),
-                        Text(
-                          ' $formattedDate',
-                          style: TextStyle(fontSize: 14.0),
+                        Expanded(
+                          flex: 1,
+                          child: Text(
+                            '₹${expense.amount.toInt()}',
+                            style:
+                                TextStyle(fontSize: 16.0, color: Colors.black),
+                          ),
                         ),
                       ],
                     ),
