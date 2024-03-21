@@ -57,8 +57,9 @@ dependencies:
   table_calendar: ^3.0.9
   flutter_calendar_week: ^3.0.2
   image_picker: ^1.0.7
-  file_picker: ^6.2.0
   to_csv: ^2.2.1
+  excel: ^4.0.2
+  file_picker: ^6.2.0
   
 git branch -M maingit branch -M maindev_dependencies:
   flutter_test:

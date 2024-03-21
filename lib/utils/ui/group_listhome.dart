@@ -57,18 +57,21 @@ class _GroupListhomeScreenState extends State<GroupListhomeScreen> {
   Widget build(BuildContext context) {
     return Container(
       height: 150, // Set your desired height here
+      
       child: ListView.builder(
         scrollDirection: Axis.horizontal,
+        
         itemCount: groups.length,
         itemBuilder: (context, index) {
           final group = groups[index];
           final groupId = int.parse(group['group_id']);
           final groupName = group['group_name'];
           final image = group['image'];
-          final _imageUrl = '$apiBaseUrl/expense-o/$image'; // Assuming you have group icons
+          final _imageUrl =
+              '$apiBaseUrl/expense-o/$image'; // Assuming you have group icons
 
           return Padding(
-            padding: EdgeInsets.symmetric(horizontal: 8.0),
+            padding: EdgeInsets.symmetric(horizontal: 4.0),
             child: GestureDetector(
               onTap: () {
                 Navigator.push(
@@ -78,28 +81,44 @@ class _GroupListhomeScreenState extends State<GroupListhomeScreen> {
                   ),
                 );
               },
-              child: Column(
-                children: [
-                           CircleAvatar(
-                    radius: 30,
-                    backgroundColor: Color(0xFF80A8B0),
-                    backgroundImage: _imageUrl.isNotEmpty
-                        ? NetworkImage(_imageUrl) // Load image if URL is not empty
-                        : null, // Otherwise, display null
-                    child: image.isEmpty // Show default icon if image URL is empty
-                        ? Icon(
-                            Icons.group,
-                            size: 30,
-                            color: Colors.white,
-                          )
-                        : null,
-                  ),
-                  SizedBox(height: 8),
-                  Text(
-                    groupName,
-                    style: TextStyle(fontWeight: FontWeight.bold),
-                  ),
-                ],
+              child: Card(
+                elevation: 2, // Set the elevation of the card
+                surfaceTintColor: Colors.grey,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(10.0),
+                ),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Container(
+                      width: 120, // Set your desired width here
+                      height: 50, // Set your desired height here
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(10.0),
+                      ),
+                      child: ClipRRect(
+                        borderRadius: BorderRadius.circular(5.0),
+                        child: Image.network(
+                          _imageUrl,
+                          fit: BoxFit.cover,
+                          errorBuilder: (BuildContext context, Object exception,
+                              StackTrace? stackTrace) {
+                            return Icon(
+                              Icons.group,
+                              size: 50,
+                              color: Colors.black,
+                            );
+                          },
+                        ),
+                      ),
+                    ),
+                    SizedBox(height: 12),
+                    Text(
+                      groupName,
+                      style: TextStyle(fontWeight: FontWeight.bold),
+                    ),
+                  ],
+                ),
               ),
             ),
           );

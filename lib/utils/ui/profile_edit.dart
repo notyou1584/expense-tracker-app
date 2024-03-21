@@ -153,7 +153,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
       String uid, String username, String email, File? image) async {
     final String apiUrl = '$apiBaseUrl/expense-o/add_name.php';
     final Map<String, String> postData = {
-      'update_profile': '1',
+      'add_name': '1',
       'access_key': '5505',
       'user_id': uid,
       'user_name': username,

@@ -88,7 +88,7 @@ class _AddGroupImageScreenState extends State<AddGroupImageScreen> {
               icon: Icon(Icons.image),
               label: Text('Select Image'),
               style: ElevatedButton.styleFrom(
-                primary: Colors.blue,
+           
                 padding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
               ),
             ),

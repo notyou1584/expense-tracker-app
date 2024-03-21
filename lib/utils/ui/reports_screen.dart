@@ -14,6 +14,7 @@ import 'package:path/path.dart' as path;
 import 'package:to_csv/to_csv.dart' as exportCSV;
 import 'package:intl/intl.dart';
 import 'package:permission_handler/permission_handler.dart';
+import 'package:file_picker/file_picker.dart';
 import 'package:path_provider_platform_interface/path_provider_platform_interface.dart';
 
 class ExpenseAnalysisScreen extends StatefulWidget {
@@ -84,66 +85,50 @@ class _ExpenseAnalysisScreenState extends State<ExpenseAnalysisScreen> {
   }
 
   Future<void> _exportToCSV(List<Expense> expenses) async {
-    // Request permission to write to external storage
-    PermissionStatus permissionStatus = await Permission.storage.request();
-    if (permissionStatus != PermissionStatus.granted) {
-      // Permission not granted, show a message or handle accordingly
-      showDialog(
-        context: context,
-        builder: (context) => AlertDialog(
-          title: Text('Permission Denied'),
-          content: Text('Please grant permission to access external storage.'),
-          actions: [
-            TextButton(
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
-              child: Text('OK'),
-            ),
-          ],
-        ),
+    // Filter expenses based on selected date range
+    expenses = expenses
+        .where((expense) =>
+            expense.date.isAfter(fromDate) && expense.date.isBefore(toDate))
+        .toList();
+
+    // Create a list of lists to store the CSV data
+    List<List<String>> csvData = [
+      ['Expense ID', 'User ID', 'Amount', 'Description', 'Category', 'Date']
+    ];
+
+    // Add each expense to the CSV data
+    expenses.forEach((expense) {
+      csvData.add([
+        expense.id.toString(),
+        expense.userId.toString(),
+        expense.amount.toString(),
+        expense.description,
+        expense.category,
+        expense.date.toString(),
+      ]);
+    });
+
+    // Convert the CSV data to a string
+    String csvString = const ListToCsvConverter().convert(csvData);
+
+    // Select the output file location using the FilePicker package
+    final outputFile = await FilePicker.platform.getDirectoryPath();
+    if (outputFile == null) {
+      // Show an error message if the user cancels the file picker
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('File picker cancelled')),
       );
       return;
     }
 
-    // Create CSV data
-    List<List<dynamic>> csvData = [
-      ['ID', 'User ID', 'Amount', 'Description', 'Category', 'Date']
-    ];
-    expenses.forEach((expense) {
-      csvData.add([
-        expense.id,
-        expense.userId,
-        expense.amount,
-        expense.description,
-        expense.category,
-        DateFormat('yyyy-MM-dd').format(expense.date) // Format date as required
-      ]);
-    });
-    PathProviderPlatform provider = PathProviderPlatform.instance;
+    // Save the CSV string to a file
+    File(path.join(outputFile, 'expenses.csv'))
+      ..createSync(recursive: true)
+      ..writeAsStringSync(csvString);
 
-    // Write CSV data to a file
-    String csvString = const ListToCsvConverter().convert(csvData);
-    final String directory = provider.getApplicationDocumentsPath() as String;
-    final String filePath = path.join(directory, 'expenses.csv');
-    File file = File(filePath);
-    await file.writeAsString(csvString);
-
-    // Show a message or perform any other action upon successful export
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: Text('Export Successful'),
-        content: Text('Expenses have been exported to expenses.csv'),
-        actions: [
-          TextButton(
-            onPressed: () {
-              Navigator.of(context).pop();
-            },
-            child: Text('OK'),
-          ),
-        ],
-      ),
+    // Show a success message
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text('Expenses exported to $outputFile/expenses.csv')),
     );
   }
 

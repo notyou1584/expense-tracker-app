@@ -1,5 +1,5 @@
-import 'package:demo222/utils/ui/expense/add.dart';
 import 'package:flutter/material.dart';
+import 'package:demo222/utils/ui/expense/add.dart';
 import 'package:demo222/utils/ui/expense/expense_model.dart'; // Import your ExpenseList widget
 import 'package:demo222/utils/ui/group_listhome.dart'; // Import your GroupListhomeScreen widget
 import 'package:demo222/utils/ui/recent.dart'; // Import your recent expenses screen widget
@@ -14,13 +14,27 @@ class HomeScreen extends StatefulWidget {
   _HomeScreenState createState() => _HomeScreenState();
 }
 
-class _HomeScreenState extends State<HomeScreen> {
+class _HomeScreenState extends State<HomeScreen>
+    with SingleTickerProviderStateMixin {
   late Map<String, double> expenseTotals = {};
+  late AnimationController _controller;
+  late Animation<double> _animation;
 
   @override
   void initState() {
     super.initState();
+    _controller = AnimationController(
+      duration: const Duration(milliseconds: 500),
+      vsync: this,
+    );
+    _animation = Tween<double>(begin: 0.0, end: 2.0).animate(_controller);
     _calculateTotalExpenses();
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
   }
 
   void _calculateTotalExpenses() async {
@@ -28,6 +42,7 @@ class _HomeScreenState extends State<HomeScreen> {
     setState(() {
       expenseTotals = ExpenseUtils.calculateExpenseTotals(expenses);
     });
+    _controller.forward(); // Start the animation
   }
 
   @override
@@ -37,149 +52,146 @@ class _HomeScreenState extends State<HomeScreen> {
         automaticallyImplyLeading: false,
       ),
       body: SingleChildScrollView(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            Container(
-              height: 140.0,
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Expanded(
-                    flex: 1,
-                    child: _buildTotalCard(
-                      'Today',
-                      expenseTotals['totalToday'] ?? 0,
-                      Color.fromRGBO(222, 150, 124, 0.73),
+        child: FadeTransition(
+          opacity: _animation,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              AnimatedContainer(
+                duration: Duration(milliseconds: 500),
+                height: 140.0,
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Expanded(
+                      flex: 1,
+                      child: _buildTotalCard(
+                        'Today',
+                        expenseTotals['totalToday'] ?? 0,
+                        Color.fromRGBO(222, 150, 124, 0.73),
+                      ),
                     ),
-                  ),
-                  Expanded(
-                    flex: 1,
-                    child: _buildTotalCard(
-                      'This Week',
-                      expenseTotals['totalThisWeek'] ?? 0,
-                      Color(0xFF80A8B0),
+                    Expanded(
+                      flex: 1,
+                      child: _buildTotalCard(
+                        'This Week',
+                        expenseTotals['totalThisWeek'] ?? 0,
+                        Color(0xFF80A8B0),
+                      ),
                     ),
-                  ),
-                  Expanded(
-                    flex: 1,
-                    child: _buildTotalCard(
-                      'This Month',
-                      expenseTotals['totalThisMonth'] ?? 0,
-                      Color.fromARGB(255, 168, 141, 141),
+                    Expanded(
+                      flex: 1,
+                      child: _buildTotalCard(
+                        'This Month',
+                        expenseTotals['totalThisMonth'] ?? 0,
+                        Color.fromARGB(255, 168, 141, 141),
+                      ),
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
-            ),
-            SizedBox(height: 4),
-                  Container(
-                    padding:
-                        EdgeInsets.symmetric(horizontal: 16.0, vertical: 2.0),
-                    color: Colors.transparent,
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Text(
-                          'Your Expenses',
-                          style: GoogleFonts.montserrat(
-                            fontSize: 18,
-                            fontWeight: FontWeight.w700,
-                          ),
-                        ),
-                        Material(
-                          color: Colors.transparent,
-                          child: InkWell(
+              SizedBox(height: 4),
+              Container(
+                padding: EdgeInsets.symmetric(horizontal: 16.0, vertical: 2.0),
+                color: Colors.transparent,
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(
+                      'Groups',
+                      style: GoogleFonts.montserrat(
+                        fontSize: 18,
+                        fontWeight: FontWeight.w700,
+                      ),
+                    ),
+                    Material(
+                      color: Colors.transparent,
+                      child: InkWell(
+                        borderRadius: BorderRadius.circular(20.0),
+                        onTap: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => const recents(),
+                            ),
+                          );
+                          // Navigate to recent expenses screen
+                        },
+                        child: Container(
+                          padding: EdgeInsets.symmetric(
+                              horizontal: 10.0, vertical: 3.0),
+                          decoration: BoxDecoration(
                             borderRadius: BorderRadius.circular(20.0),
-                            onTap: () {
-                              // Navigate to recent expenses screen
-                            },
-                            child: Container(
-                              padding: EdgeInsets.symmetric(
-                                  horizontal: 12.0, vertical: 6.0),
-                              decoration: BoxDecoration(
-                                borderRadius: BorderRadius.circular(20.0),
-                                color: Color(0xFFDE7A57).withOpacity(0.2),
-                              ),
-                              child: Text(
-                                'See All',
-                                style: TextStyle(
-                                  color: Color(0xFFDE7A57),
-                                  fontWeight: FontWeight.bold,
-                                  fontSize: 16.0,
-                                ),
-                              ),
+                          ),
+                          child: Text(
+                            'See All',
+                            style: TextStyle(
+                              color: Color(0xFFDE7A57),
+                              fontWeight: FontWeight.bold,
+                              fontSize: 16.0,
                             ),
                           ),
                         ),
-                      ],
+                      ),
                     ),
-                  ),
-                  // Expense List
-                  Material(
-                    elevation: 3,
-                    borderRadius: BorderRadius.circular(16),
-                    color: Colors.white,
-                    child: Container(
-                      child: ExpenseList(userId: widget.userId ?? ''),
+                  ],
+                ),
+              ),
+              SizedBox(height: 10),
+              // Total Expenses for Today, Week, and Month
+              GroupListhomeScreen(),
+              SizedBox(height: 13),
+              Container(
+                padding: EdgeInsets.symmetric(horizontal: 16.0, vertical: 2.0),
+                color: Colors.transparent,
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(
+                      'Your Expenses',
+                      style: GoogleFonts.montserrat(
+                        fontSize: 18,
+                        fontWeight: FontWeight.w700,
+                      ),
                     ),
-                  ),
-                  SizedBox(height: 10),
-                  Container(
-                    padding:
-                        EdgeInsets.symmetric(horizontal: 16.0, vertical: 2.0),
-                    color: Colors.transparent,
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Text(
-                          'Groups',
-                          style: GoogleFonts.montserrat(
-                            fontSize: 18,
-                            fontWeight: FontWeight.w700,
-                          ),
-                        ),
-                        Material(
-                          color: Colors.transparent,
-                          child: InkWell(
+                    Material(
+                      color: Colors.transparent,
+                      child: InkWell(
+                        borderRadius: BorderRadius.circular(20.0),
+                        onTap: () {
+                          // Navigate to recent expenses screen
+                        },
+                        child: Container(
+                          padding: EdgeInsets.symmetric(
+                              horizontal: 10.0, vertical: 3.0),
+                          decoration: BoxDecoration(
                             borderRadius: BorderRadius.circular(20.0),
-                            onTap: () {
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (context) => const recents(),
-                                ),
-                              );
-                              // Navigate to recent expenses screen
-                            },
-                            child: Container(
-                              padding: EdgeInsets.symmetric(
-                                  horizontal: 12.0, vertical: 6.0),
-                              decoration: BoxDecoration(
-                                borderRadius: BorderRadius.circular(20.0),
-                                color: Color(0xFFDE7A57).withOpacity(0.2),
-                              ),
-                              child: Text(
-                                'See All',
-                                style: TextStyle(
-                                  color: Color(0xFFDE7A57),
-                                  fontWeight: FontWeight.bold,
-                                  fontSize: 16.0,
-                                ),
-                              ),
+                          ),
+                          child: Text(
+                            'See All',
+                            style: TextStyle(
+                              color: Color(0xFFDE7A57),
+                              fontWeight: FontWeight.bold,
+                              fontSize: 16.0,
                             ),
                           ),
                         ),
-                      ],
+                      ),
                     ),
-                  ),
-                  SizedBox(height: 10),
-                  // Total Expenses for Today, Week, and Month
-                  GroupListhomeScreen(),
-            
-         
-            // Other widgets...
-          ],
+                  ],
+                ),
+              ),
+              // Expense List
+              Material(
+                elevation: 3,
+                borderRadius: BorderRadius.circular(16),
+                color: Colors.white,
+                child: Container(
+                  child: ExpenseList(userId: widget.userId ?? ''),
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );
@@ -217,6 +229,7 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 }
+
 class ExpenseUtils {
   static Map<String, double> calculateExpenseTotals(List<Expense> expenses) {
     double totalToday = 0;
@@ -247,4 +260,3 @@ class ExpenseUtils {
     };
   }
 }
-

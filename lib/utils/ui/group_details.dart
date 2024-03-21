@@ -12,13 +12,13 @@ import 'package:demo222/utils/ui/expense/expense_model.dart';
 import 'package:demo222/utils/ui/members.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:csv/csv.dart';
 import 'package:path_provider/path_provider.dart';
-
 
 class GroupDetailsScreen extends StatefulWidget {
   final String? userId;
@@ -33,14 +33,15 @@ class GroupDetailsScreen extends StatefulWidget {
 
 class _GroupDetailsScreenState extends State<GroupDetailsScreen> {
   String image = '';
-  String _imageUrl = ''; // Initialize as empty
+  String _imageUrl = '';
+  String groupName = ''; // Initialize as empty
+  File? _imageFile;
 
   @override
   void initState() {
     super.initState();
     // Call the userdata function to fetch user data when the screen is loaded
     Groupsdata();
-     _imageUrl = "$apiBaseUrl/expense-o/uploads/image";
   }
 
   Future<void> Groupsdata() async {
@@ -65,11 +66,16 @@ class _GroupDetailsScreenState extends State<GroupDetailsScreen> {
           responseData['error'] != null &&
           responseData['error'] == 'false' &&
           responseData['data'] != null) {
-        final String groupName = responseData['data']['group_name'];
-        image = responseData['data']['image'];
+        groupName = responseData['data']['group_name'];
+        final dynamic imageData = responseData['data']['image'];
+        // Check if imageData is null or empty
+        image = imageData != null ? imageData : '';
         // Extract user data from response
         setState(() {
-          _imageUrl = "$apiBaseUrl/expense-o/uploads/image";
+          _imageUrl = image.isNotEmpty
+              ? '$apiBaseUrl/expense-o/$image'
+              : ''; // Set to empty URL if image is empty
+          groupName = groupName;
         });
       } else {
         // Handle error
@@ -78,6 +84,65 @@ class _GroupDetailsScreenState extends State<GroupDetailsScreen> {
     } else {
       // Handle HTTP error
       print('Failed to fetch user data: ${response.reasonPhrase}');
+    }
+  }
+
+  void _updateGroup(File? image) async {
+    final String apiUrl = '$apiBaseUrl/expense-o/image_update.php';
+    final Map<String, String> postData = {
+      'access_key': '5505',
+      'update_image': '1',
+      'groupId': widget.groupId.toString(),
+    };
+    var request = http.MultipartRequest('POST', Uri.parse(apiUrl));
+
+    // Add other fields to the request
+    postData.forEach((key, value) {
+      request.fields[key] = value;
+    });
+
+    // Add image file to the request if provided
+    if (image != null) {
+      request.files.add(
+        await http.MultipartFile.fromPath(
+          'image',
+          image.path,
+        ),
+      );
+    }
+
+    var response = await request.send();
+
+    if (response.statusCode == 200) {
+      final responseData = json.decode(await response.stream.bytesToString());
+      if (responseData != null &&
+          responseData['error'] != null &&
+          responseData['error'] == 'false' &&
+          responseData['data'] != null) {
+        print('added successfully');
+      } else {
+        // Check if there's a message in the response, else print a generic error message
+        final errorMessage = responseData != null
+            ? responseData['message']
+            : 'Unknown error occurred';
+        print('Failed to add : $errorMessage');
+      }
+    } else {
+      print('Failed to add : ${response.reasonPhrase}');
+    }
+  }
+
+  Future<void> _pickImage() async {
+    final picker = ImagePicker();
+    final pickedFile = await picker.pickImage(source: ImageSource.gallery);
+
+    if (pickedFile != null) {
+      setState(() {
+        _imageFile = File(pickedFile.path);
+        _updateGroup(_imageFile);
+        // You'll likely want to add code here to upload the _imageFile to your server
+        // and update the stored image URL (_imageUrl).
+      });
     }
   }
 
@@ -90,13 +155,8 @@ class _GroupDetailsScreenState extends State<GroupDetailsScreen> {
           length: 3,
           child: Scaffold(
             appBar: AppBar(
-              title: const Text('Group Details'),
-              leading: IconButton(
-                icon: const Icon(Icons.arrow_back),
-                onPressed: () {
-                  Navigator.of(context).pop();
-                },
-              ),
+              automaticallyImplyLeading: false,
+              title: Text(groupName),
               actions: [
                 IconButton(
                   icon: const Icon(Icons.settings),
@@ -110,8 +170,12 @@ class _GroupDetailsScreenState extends State<GroupDetailsScreen> {
                     // Handle settings icon press
                   },
                 ),
-                IconButton(
-                    icon: const Icon(Icons.person_add), onPressed: () {}),
+                _imageUrl.isEmpty
+                    ? IconButton(
+                        icon: const Icon(Icons.add_a_photo),
+                        onPressed: _pickImage,
+                      )
+                    : const SizedBox.shrink(),
               ],
             ),
             floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
@@ -134,35 +198,20 @@ class _GroupDetailsScreenState extends State<GroupDetailsScreen> {
             ),
             body: Column(
               children: [
-                Container( // Add margin from the top
-                  width: 200,
-                  height: 200,
-                  decoration: BoxDecoration(
-                      shape: BoxShape.rectangle,
-                      color: Color(0xFF80A8B0),
-                      image: DecorationImage(
-                        image: NetworkImage(_imageUrl),
-                        fit: BoxFit.fill,
-                      )),
-                  child: _imageUrl.isEmpty
-                      ? IconButton(
-                          icon: Icon(
-                            Icons.group,
-                            size: 50,
-                            color: Colors.white,
-                          ),
-                          onPressed: () {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) => AddGroupImageScreen(
-                                    groupId: widget.groupId),
-                              ),
-                            );
-                          },
-                        )
-                      : null,
-                ),
+                _imageUrl.isEmpty
+                    ? const SizedBox.shrink()
+                    : Container(
+                        width: double.infinity,
+                        height: MediaQuery.of(context).size.width / 2,
+                        decoration: const BoxDecoration(
+                          shape: BoxShape.rectangle,
+                          color: Color(0xFF80A8B0),
+                        ),
+                        child: Image.network(
+                          _imageUrl,
+                          fit: BoxFit.cover,
+                        ),
+                      ),
                 const TabBar(
                   tabs: [
                     Tab(text: 'Expenses'),
@@ -312,6 +361,7 @@ class _SettleUpScreenState extends State<SettleUpScreen> {
   List<dynamic> groupMembers = [];
   List<dynamic> expenses = [];
   Map<String, double> memberPercentages = {};
+  List<bool> _isSelected = [true, false];
 
   @override
   void initState() {
@@ -408,35 +458,11 @@ class _SettleUpScreenState extends State<SettleUpScreen> {
     Map<String, double> totalPaidAmount = calculateTotalPaidAmount();
 
     return Scaffold(
-      appBar: AppBar(
-        automaticallyImplyLeading: false,
-        actions: [
-          PopupMenuButton<ExpenseDivision>(
-            onSelected: (value) {
-              setState(() {
-                _selectedDivision = value!;
-              });
-            },
-            itemBuilder: (BuildContext context) =>
-                <PopupMenuEntry<ExpenseDivision>>[
-              PopupMenuItem<ExpenseDivision>(
-                value: ExpenseDivision.equally,
-                child: Text('Equally'),
-              ),
-              PopupMenuItem<ExpenseDivision>(
-                value: ExpenseDivision.byPercentage,
-                child: Text('By Percentage'),
-              ),
-            ],
-          ),
-        ],
-      ),
       body: groupMembers.isEmpty || expenses.isEmpty
-          ? Center(
-              child: Text('No settlements yet.'),
-            )
+          ? Center(child: Text('No settlements yet.'))
           : Column(
               children: [
+                _buildExpenseDivisionSelector(), // Radio buttons here
                 if (_selectedDivision == ExpenseDivision.byPercentage)
                   _buildPercentageInput(),
                 Expanded(
@@ -468,6 +494,7 @@ class _SettleUpScreenState extends State<SettleUpScreen> {
                           amountToPay >= 0 ? Colors.red : Colors.green;
 
                       return Card(
+                        color: Colors.white,
                         elevation: 1,
                         margin: EdgeInsets.symmetric(
                             vertical: 8.0, horizontal: 16.0),
@@ -521,31 +548,76 @@ class _SettleUpScreenState extends State<SettleUpScreen> {
     );
   }
 
+  Widget _buildExpenseDivisionSelector() {
+    return Padding(
+      padding: const EdgeInsets.all(16.0),
+      child: ToggleButtons(
+        isSelected: _isSelected,
+        onPressed: (index) {
+          setState(() {
+            // Ensure only one button is selected at a time
+            for (int i = 0; i < _isSelected.length; i++) {
+              _isSelected[i] = i == index;
+            }
+
+            _selectedDivision = index == 0
+                ? ExpenseDivision.equally
+                : ExpenseDivision.byPercentage;
+          });
+        },
+        borderRadius: BorderRadius.circular(8.0),
+        selectedBorderColor: Theme.of(context).colorScheme.primary,
+        children: const [
+          Padding(padding: EdgeInsets.all(12.0), child: Text('Equally')),
+          Padding(padding: EdgeInsets.all(12.0), child: Text('By Percentage'))
+        ],
+      ),
+    );
+  }
+
   Widget _buildPercentageInput() {
     return Padding(
       padding: const EdgeInsets.all(8.0),
       child: Column(
         children: [
-          Text('Enter percentage for each member:'),
-          SizedBox(height: 10),
           for (var member in groupMembers)
-            Row(
-              children: [
-                Text(member['member_name'] + ':'),
-                SizedBox(width: 10),
-                Expanded(
-                  child: TextFormField(
-                    keyboardType: TextInputType.number,
-                    onChanged: (value) {
-                      setState(() {
-                        memberPercentages[member['member_name']] =
-                            double.tryParse(value) ?? 0.0;
-                      });
-                    },
+            Padding(
+              padding: const EdgeInsets.symmetric(
+                  vertical: 4.0), // Padding around input
+              child: Row(
+                children: [
+                  Text(member['member_name'] + ':'),
+                  SizedBox(width: 10),
+                  Expanded(
+                    child: Container(
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(8.0),
+                        border: Border.all(color: Colors.grey[400]!),
+                      ),
+                      child: TextFormField(
+                        keyboardType:
+                            TextInputType.numberWithOptions(decimal: true),
+                        // Allow decimal input
+                        decoration: InputDecoration(
+                          hintText: 'Enter Percent',
+                          contentPadding: EdgeInsets.all(8.0),
+                          border: InputBorder.none,
+                        ),
+                        onChanged: (value) {
+                          setState(() {
+                            memberPercentages[member['member_name']] =
+                                double.tryParse(value) ?? 0.0;
+                          });
+                        },
+                        // Add validation check (see below)
+                      ),
+                    ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
+          // Error message area (if needed)
         ],
       ),
     );
@@ -697,120 +769,121 @@ class _groupAnalysisScreenState extends State<groupAnalysisScreen> {
           ),
         ],
       ),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            Container(
-              width: MediaQuery.of(context).size.width / 2,
-              margin: EdgeInsets.all(5),
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(10),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.grey.withOpacity(0.4),
-                    spreadRadius: 0.1,
-                    blurRadius: 2,
-                    offset: Offset(0, 2),
+      body: Container(
+        height: MediaQuery.of(context).size.height,
+        child: SingleChildScrollView(
+          child: Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                Container(
+                  width: MediaQuery.of(context).size.width / 2,
+                  margin: EdgeInsets.all(5),
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(10),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.grey.withOpacity(0.4),
+                        spreadRadius: 0.1,
+                        blurRadius: 2,
+                        offset: Offset(0, 2),
+                      ),
+                    ],
+                    color: Color.fromARGB(
+                        82, 128, 168, 176), // Set your desired background color
                   ),
-                ],
-                color: Color.fromARGB(
-                    82, 128, 168, 176), // Set your desired background color
-              ),
-              height: 60,
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  SizedBox(width: 10),
-                  GestureDetector(
-                    onTap: () => _selectDate(context, true),
-                    child: Column(
-                      children: [
-                        Text('From',
-                            style: TextStyle(
-                                fontSize: 16,
-                                color: Colors.white,
-                                fontWeight: FontWeight.w900)),
-                        Text('${DateFormat('MMM yyyy').format(fromDate)}',
-                            style: TextStyle(
-                                fontSize: 16,
-                                color: Colors.white,
-                                fontWeight: FontWeight.w900)),
-                      ],
-                    ),
+                  height: 60,
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      SizedBox(width: 10),
+                      GestureDetector(
+                        onTap: () => _selectDate(context, true),
+                        child: Column(
+                          children: [
+                            Text('From',
+                                style: TextStyle(
+                                    fontSize: 16,
+                                    color: Colors.white,
+                                    fontWeight: FontWeight.w900)),
+                            Text('${DateFormat('MMM yyyy').format(fromDate)}',
+                                style: TextStyle(
+                                    fontSize: 16,
+                                    color: Colors.white,
+                                    fontWeight: FontWeight.w900)),
+                          ],
+                        ),
+                      ),
+                      SizedBox(width: 10),
+                      Center(
+                        child: Container(
+                          width: 1, // Divider width
+                          height: 40,
+                          color: Colors.grey, // Divider color
+                        ),
+                      ),
+                      SizedBox(width: 10),
+                      GestureDetector(
+                        onTap: () => _selectDate(context, false),
+                        child: Column(
+                          children: [
+                            Text('To',
+                                style: TextStyle(
+                                    fontSize: 16,
+                                    color: Colors.white,
+                                    fontWeight: FontWeight.w900)),
+                            Text('${DateFormat('MMM yyyy').format(fromDate)}',
+                                style: TextStyle(
+                                    fontSize: 16,
+                                    color: Colors.white,
+                                    fontWeight: FontWeight.w900)),
+                          ],
+                        ),
+                      ),
+                    ],
                   ),
-                  SizedBox(width: 10),
-                  Center(
-                    child: Container(
-                      width: 1, // Divider width
-                      height: 40,
-                      color: Colors.grey, // Divider color
-                    ),
-                  ),
-                  SizedBox(width: 10),
-                  GestureDetector(
-                    onTap: () => _selectDate(context, false),
-                    child: Column(
-                      children: [
-                        Text('To',
-                            style: TextStyle(
-                                fontSize: 16,
-                                color: Colors.white,
-                                fontWeight: FontWeight.w900)),
-                        Text('${DateFormat('MMM yyyy').format(fromDate)}',
-                            style: TextStyle(
-                                fontSize: 16,
-                                color: Colors.white,
-                                fontWeight: FontWeight.w900)),
-                      ],
-                    ),
-                  ),
-                ],
-              ),
+                ),
+                SizedBox(height: 50),
+                FutureBuilder(
+                  future: getgroupExpenses(),
+                  builder: (context, snapshot) {
+                    if (snapshot.connectionState == ConnectionState.waiting) {
+                      return Center(
+                        child: CircularProgressIndicator(),
+                      );
+                    } else if (snapshot.hasError) {
+                      return Center(
+                        child: Text('Error: ${snapshot.error}'),
+                      );
+                    } else {
+                      List<Expense> expenses = snapshot.data as List<Expense>;
+                      return _buildPieChart(expenses);
+                    }
+                  },
+                ),
+                SizedBox(height: 50),
+                FutureBuilder(
+                  future: getgroupExpenses(),
+                  builder: (context, snapshot) {
+                    if (snapshot.connectionState == ConnectionState.waiting) {
+                      return Center(
+                        child: CircularProgressIndicator(),
+                      );
+                    } else if (snapshot.hasError) {
+                      return Center(
+                        child: Text('Error: ${snapshot.error}'),
+                      );
+                    } else {
+                      List<Expense> expenses = snapshot.data as List<Expense>;
+                      return _buildLinearIndicators(expenses);
+                    }
+                  },
+                ),
+              ],
             ),
-            SizedBox(height: 50),
-            Expanded(
-              child: FutureBuilder(
-                future: getgroupExpenses(),
-                builder: (context, snapshot) {
-                  if (snapshot.connectionState == ConnectionState.waiting) {
-                    return Center(
-                      child: CircularProgressIndicator(),
-                    );
-                  } else if (snapshot.hasError) {
-                    return Center(
-                      child: Text('Error: ${snapshot.error}'),
-                    );
-                  } else {
-                    List<Expense> expenses = snapshot.data as List<Expense>;
-                    return _buildPieChart(expenses);
-                  }
-                },
-              ),
-            ),
-            SizedBox(height: 50),
-            Expanded(
-              child: FutureBuilder(
-                future: getgroupExpenses(),
-                builder: (context, snapshot) {
-                  if (snapshot.connectionState == ConnectionState.waiting) {
-                    return Center(
-                      child: CircularProgressIndicator(),
-                    );
-                  } else if (snapshot.hasError) {
-                    return Center(
-                      child: Text('Error: ${snapshot.error}'),
-                    );
-                  } else {
-                    List<Expense> expenses = snapshot.data as List<Expense>;
-                    return _buildLinearIndicators(expenses);
-                  }
-                },
-              ),
-            ),
-          ],
+          ),
         ),
       ),
     );

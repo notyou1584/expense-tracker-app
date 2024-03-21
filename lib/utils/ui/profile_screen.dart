@@ -5,8 +5,6 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 
-import 'settings_screen.dart';
-
 class UserProfileScreen extends StatefulWidget {
   const UserProfileScreen({Key? key}) : super(key: key);
 
