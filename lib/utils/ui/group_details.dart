@@ -140,9 +140,8 @@ class _GroupDetailsScreenState extends State<GroupDetailsScreen> {
       setState(() {
         _imageFile = File(pickedFile.path);
         _updateGroup(_imageFile);
-        // You'll likely want to add code here to upload the _imageFile to your server
-        // and update the stored image URL (_imageUrl).
-      });
+      }
+      );
     }
   }
 

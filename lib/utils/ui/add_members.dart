@@ -1,17 +1,11 @@
 import 'dart:convert';
-import 'package:demo222/api_constants.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:contacts_service/contacts_service.dart';
+import 'package:demo222/api_constants.dart';
 
 class AddMembersScreen extends StatefulWidget {
-  final List<String> contactsInGroup;
-  final List<String> contactsInDatabase;
-
-  AddMembersScreen({
-    required this.contactsInGroup,
-    required this.contactsInDatabase, required int groupId,
-  });
+  const AddMembersScreen({Key? key}) : super(key: key);
 
   @override
   _AddMembersScreenState createState() => _AddMembersScreenState();
@@ -20,12 +14,14 @@ class AddMembersScreen extends StatefulWidget {
 class _AddMembersScreenState extends State<AddMembersScreen> {
   List<Contact> _contacts = [];
   List<Contact> _selectedContacts = [];
-    List<String> _contactsInDatabase = [];
+  List<String> _contactsInDatabase = [];
+  List<String> _contactsInGroup = []; // Assuming you have this list
 
   @override
   void initState() {
     super.initState();
     _fetchContacts();
+    _fetchContactsFromDatabase();
   }
 
   Future<void> _fetchContacts() async {
@@ -38,10 +34,6 @@ class _AddMembersScreenState extends State<AddMembersScreen> {
     });
   }
 
-  bool _isContactInGroup(String phoneNumber) {
-    return widget.contactsInGroup.contains(phoneNumber);
-  }
-  
   Future<void> _fetchContactsFromDatabase() async {
     final String url = '$apiBaseUrl/expense-o/get_numbers.php';
     final response = await http.post(
@@ -70,6 +62,7 @@ class _AddMembersScreenState extends State<AddMembersScreen> {
       print('Failed to fetch contacts: ${response.statusCode}');
     }
   }
+
   bool _isContactInDatabase(String phoneNumber) {
     final phoneNumberWithoutSpaces = phoneNumber.replaceAll(' ', '');
     return _contactsInDatabase.any(
@@ -141,18 +134,9 @@ class _AddMembersScreenState extends State<AddMembersScreen> {
               : '';
           final name = contact.displayName ?? '';
 
-          if (_isContactInGroup(phoneNumber)) {
-            return ListTile(
-              title: Text(
-                contact.displayName ?? '',
-                style: TextStyle(fontWeight: FontWeight.bold),
-              ),
-              subtitle: Text(phoneNumber),
-              trailing: Icon(Icons.check, color: Colors.green),
-              onTap: () {
-                // Do not allow selecting contacts already in the group
-              },
-            );
+          if (_contactsInGroup.contains(phoneNumber)) {
+            // Contact is already in the group, don't show his number
+            return SizedBox.shrink();
           } else if (_isContactInDatabase(phoneNumber)) {
             return ListTile(
               title: Text(
