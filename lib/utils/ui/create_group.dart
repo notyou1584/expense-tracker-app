@@ -9,6 +9,7 @@ import 'package:flutter/material.dart';
 import 'package:permission_handler/permission_handler.dart';
 
 import 'group_details.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class ContactData {
   final String displayName;
@@ -61,6 +62,15 @@ class _CreateGroupScreenState extends State<CreateGroupScreen> {
           .toList();
       _filteredContacts = _contacts;
     });
+  }
+
+  Future<void> _inviteViaWhatsApp(String phoneNumber) async {
+    final PhoneNumber =
+        phoneNumber.replaceAll(' ', ''); // Remove spaces from phone number
+    Uri _url = Uri.parse('https://wa.me/$PhoneNumber');
+    if (!await launchUrl(_url)) {
+      throw Exception('Could not launch $_url');
+    }
   }
 
   void _createGroup() async {
@@ -271,7 +281,7 @@ class _CreateGroupScreenState extends State<CreateGroupScreen> {
                         ? Text('')
                         : ElevatedButton(
                             onPressed: () {
-                              // Implement invitation functionality
+                              _inviteViaWhatsApp(phoneNumber);
                             },
                             child: Text('Invite'),
                           ),

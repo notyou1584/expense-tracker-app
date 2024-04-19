@@ -97,16 +97,6 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                                 color: Colors.grey[600],
                               ),
                   ),
-                  if (_image != null || widget.imageUrl.isNotEmpty)
-                    Positioned(
-                      top: 0,
-                      right: 0,
-                      child: IconButton(
-                        icon: Icon(Icons.delete),
-                        onPressed: _deleteImage,
-                        color: Colors.red,
-                      ),
-                    ),
                 ],
               ),
             ),
@@ -173,6 +163,9 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
           image.path,
         ),
       );
+    } else {
+      // If image is null, send null to the server
+      request.fields['image'] = 'null';
     }
 
     var response = await request.send();

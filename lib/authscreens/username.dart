@@ -93,7 +93,7 @@ class _AddUsernameScreenState extends State<AddUsernameScreen> {
                 final String username = _usernameController.text;
                 final String email = _emailController.text;
                 userdata(userId, username, email, _image);
-                Navigator.pushReplacementNamed(context, '/categories');
+                Navigator.pushReplacementNamed(context, '/home');
                 // Your existing onPressed logic
               },
               child: Text(

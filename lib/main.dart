@@ -55,6 +55,7 @@ class _MyAppState extends State<MyApp> {
     final User? currentUser = FirebaseAuth.instance.currentUser;
     final String userId = currentUser?.uid ?? '';
     return MaterialApp(
+      title: 'expense-o',
       theme: MyThemes.lightTheme,
       home: SplashScreen(),
       routes: {

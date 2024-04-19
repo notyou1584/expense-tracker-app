@@ -65,7 +65,13 @@ class _ExpenseAnalysisScreenState extends State<ExpenseAnalysisScreen> {
   }
 
   Future<void> _selectDate(BuildContext context, bool isFromDate) async {
-    final initialDate = isFromDate ? fromDate : toDate;
+    DateTime initialDate;
+    if (isFromDate) {
+      initialDate = fromDate.subtract(Duration(days: fromDate.day));
+    } else {
+      initialDate = toDate.subtract(Duration(days: toDate.day));
+    }
+
     final DateTime? picked = await showDatePicker(
       context: context,
       initialDate: initialDate,

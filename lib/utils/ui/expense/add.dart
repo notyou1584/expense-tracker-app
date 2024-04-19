@@ -8,11 +8,6 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:demo222/utils/ui/editandicons.dart';
 
-
-//add
-
-// Function to add an expense
-
 Future<Map<String, dynamic>> addExpense(Expense expense) async {
   final String apiUrl = '$apiBaseUrl/expense-o/add_expenses.php';
 
@@ -93,13 +88,12 @@ Future<List<Expense>> getExpenses(String userId) async {
       final List<dynamic> expenseData = responseData['data'];
       return expenseData.map((data) {
         return Expense(
-          id: data['expense_id'],
-          userId: data['user_id'],
-          amount: double.parse(data['amount'].toString()),
-          description: data['description'],
-          category: data['category'],
-          date: DateTime.parse(data['date'])
-        );
+            id: data['expense_id'],
+            userId: data['user_id'],
+            amount: double.parse(data['amount'].toString()),
+            description: data['description'],
+            category: data['category'],
+            date: DateTime.parse(data['date']));
       }).toList();
     } else {
       return [];

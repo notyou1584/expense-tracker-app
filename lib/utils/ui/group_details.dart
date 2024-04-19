@@ -140,8 +140,7 @@ class _GroupDetailsScreenState extends State<GroupDetailsScreen> {
       setState(() {
         _imageFile = File(pickedFile.path);
         _updateGroup(_imageFile);
-      }
-      );
+      });
     }
   }
 
@@ -844,7 +843,6 @@ class _groupAnalysisScreenState extends State<groupAnalysisScreen> {
                     ],
                   ),
                 ),
-                SizedBox(height: 50),
                 FutureBuilder(
                   future: getgroupExpenses(),
                   builder: (context, snapshot) {
@@ -862,7 +860,6 @@ class _groupAnalysisScreenState extends State<groupAnalysisScreen> {
                     }
                   },
                 ),
-                SizedBox(height: 50),
                 FutureBuilder(
                   future: getgroupExpenses(),
                   builder: (context, snapshot) {
@@ -1015,8 +1012,12 @@ class _groupAnalysisScreenState extends State<groupAnalysisScreen> {
       colorIndex++;
     });
 
-    return ListView(
-      children: indicators,
+    return SingleChildScrollView(
+      child: ListView(
+        shrinkWrap: true,
+        physics: NeverScrollableScrollPhysics(),
+        children: indicators,
+      ),
     );
   }
 }

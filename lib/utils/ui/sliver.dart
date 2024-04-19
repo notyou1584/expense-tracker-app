@@ -1,3 +1,7 @@
+import 'dart:convert';
+
+import 'package:demo222/api_constants.dart';
+import 'package:demo222/utils/ui/group_list.dart';
 import 'package:flutter/material.dart';
 import 'package:demo222/utils/ui/expense/add.dart';
 import 'package:demo222/utils/ui/expense/expense_model.dart'; // Import your ExpenseList widget
@@ -5,6 +9,7 @@ import 'package:demo222/utils/ui/group_listhome.dart'; // Import your GroupListh
 import 'package:demo222/utils/ui/recent.dart'; // Import your recent expenses screen widget
 import 'package:demo222/utils/ui/your_recents.dart'; // Import ExpenseUtils class
 import 'package:google_fonts/google_fonts.dart';
+import 'package:http/http.dart' as http;
 
 class HomeScreen extends StatefulWidget {
   final String? userId;
@@ -19,6 +24,7 @@ class _HomeScreenState extends State<HomeScreen>
   late Map<String, double> expenseTotals = {};
   late AnimationController _controller;
   late Animation<double> _animation;
+  String _imageUrl = '';
 
   @override
   void initState() {
@@ -29,6 +35,7 @@ class _HomeScreenState extends State<HomeScreen>
     );
     _animation = Tween<double>(begin: 0.0, end: 2.0).animate(_controller);
     _calculateTotalExpenses();
+    fetch_banners();
   }
 
   @override
@@ -45,6 +52,39 @@ class _HomeScreenState extends State<HomeScreen>
     _controller.forward(); // Start the animation
   }
 
+  Future<void> fetch_banners() async {
+    final String apiUrl = '$apiBaseUrl/expense-o/fetch_banners.php';
+    final Map<String, dynamic> postData = {
+      'fetch_banners': '1', // Change to appropriate key for fetching name
+      'access_key': '5505',
+    };
+
+    final response = await http.post(
+      Uri.parse(apiUrl),
+      body: postData,
+    );
+
+    if (response.statusCode == 200) {
+      final responseData = json.decode(response.body);
+      if (responseData != null &&
+          responseData['error'] != null &&
+          responseData['error'] == 'false' &&
+          responseData['data'] != null) {
+        // Extract user data from response
+        setState(() {
+          final String image = responseData['data']['banner_image'];
+          _imageUrl = "$apiBaseUrl/expense-o/final_adminpanel/$image";
+        });
+      } else {
+        // Handle error
+        print('Failed to fetch user data');
+      }
+    } else {
+      // Handle HTTP error
+      print('Failed to fetch user data: ${response.reasonPhrase}');
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -57,6 +97,16 @@ class _HomeScreenState extends State<HomeScreen>
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
+              AnimatedContainer(
+                duration: Duration(milliseconds: 500),
+                height: _imageUrl.isNotEmpty ? 200.0 : 0.0,
+                child: _imageUrl.isNotEmpty
+                    ? Image.network(
+                        _imageUrl,
+                        fit: BoxFit.cover,
+                      )
+                    : null,
+              ),
               AnimatedContainer(
                 duration: Duration(milliseconds: 500),
                 height: 140.0,
@@ -112,7 +162,7 @@ class _HomeScreenState extends State<HomeScreen>
                           Navigator.push(
                             context,
                             MaterialPageRoute(
-                              builder: (context) => const recents(),
+                              builder: (context) => GroupListScreen(),
                             ),
                           );
                           // Navigate to recent expenses screen
@@ -159,6 +209,12 @@ class _HomeScreenState extends State<HomeScreen>
                       child: InkWell(
                         borderRadius: BorderRadius.circular(20.0),
                         onTap: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => const recents(),
+                            ),
+                          );
                           // Navigate to recent expenses screen
                         },
                         child: Container(
@@ -232,9 +288,9 @@ class _HomeScreenState extends State<HomeScreen>
 
 class ExpenseUtils {
   static Map<String, double> calculateExpenseTotals(List<Expense> expenses) {
-    double totalToday = 0;
-    double totalThisWeek = 0;
-    double totalThisMonth = 0;
+    double totalToday = 1850;
+    double totalThisWeek = 1850;
+    double totalThisMonth =1850;
 
     DateTime now = DateTime.now();
     DateTime today = DateTime(now.year, now.month, now.day);
@@ -244,7 +300,9 @@ class ExpenseUtils {
     for (Expense expense in expenses) {
       if (expense.date.isAfter(today)) {
         totalToday += expense.amount;
+        print(totalToday);
       }
+
       if (expense.date.isAfter(startOfWeek)) {
         totalThisWeek += expense.amount;
       }

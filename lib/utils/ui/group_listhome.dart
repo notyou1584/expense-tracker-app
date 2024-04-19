@@ -100,7 +100,7 @@ class _GroupListhomeScreenState extends State<GroupListhomeScreen> {
                         borderRadius: BorderRadius.circular(5.0),
                         child: Image.network(
                           _imageUrl,
-                          fit: BoxFit.cover,
+                          fit: BoxFit.fitHeight,
                           errorBuilder: (BuildContext context, Object exception,
                               StackTrace? stackTrace) {
                             return Icon(

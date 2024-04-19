@@ -1,8 +1,8 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
     <application
-        android:label="demo222"
+        android:label="expense-o"
         android:name="${applicationName}"
-        android:icon="@mipmap/ic_launcher">
+        android:icon="@mipmap/expenseo">
         <activity
             android:name=".MainActivity"
             android:exported="true"

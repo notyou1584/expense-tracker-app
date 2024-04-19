@@ -12,10 +12,9 @@ class ExpenseDetailsScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     String formattedDate = DateFormat('dd MMMM yyyy').format(expense.date);
-      IconData iconData =
-                categoryIcons[expense.category]?['icon'] ?? Icons.category;
-            Color iconColor =
-                categoryIcons[expense.category]?['color'] ?? Colors.black;
+    IconData iconData =
+        categoryIcons[expense.category]?['icon'] ?? Icons.category;
+    Color iconColor = categoryIcons[expense.category]?['color'] ?? Colors.black;
 
     return Scaffold(
       appBar: AppBar(
@@ -42,20 +41,20 @@ class ExpenseDetailsScreen extends StatelessWidget {
               contentPadding:
                   EdgeInsets.all(20.0), // Adjust the padding as needed
               dense: false,
-              leading:  Container(
-                    width: 50,
-                    height: 50,
-                    decoration: BoxDecoration(
-                      color: (categoryColors[expense.category] ??
-                          Color.fromRGBO(0, 0, 0, 0.1)),
-                      borderRadius: BorderRadius.circular(10),
-                    ),
-                    child: Icon(
-                      iconData,
-                      size: 42.0,
-                      color: iconColor, // Set the icon color
-                    ),
-                  ),
+              leading: Container(
+                width: 50,
+                height: 50,
+                decoration: BoxDecoration(
+                  color: (categoryColors[expense.category] ??
+                      Color.fromRGBO(0, 0, 0, 0.1)),
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                child: Icon(
+                  iconData,
+                  size: 42.0,
+                  color: iconColor, // Set the icon color
+                ),
+              ),
               title: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [

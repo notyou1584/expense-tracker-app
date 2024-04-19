@@ -118,6 +118,7 @@ class _MembersScreenState extends State<MembersScreen> {
         ),
       );
     }
+      
   }
 
   @override
@@ -181,7 +182,7 @@ class _MembersScreenState extends State<MembersScreen> {
                   context,
                   MaterialPageRoute(
                     builder: (context) =>
-                        AddMembersScreen(),
+                        AddMembersScreen(groupId : widget.groupId),
                   ),
                 );
         },

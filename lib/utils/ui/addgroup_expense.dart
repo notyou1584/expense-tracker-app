@@ -34,14 +34,11 @@ class _AddExpenseScreenState extends State<AddExpenseScreen> {
   }
 
   void fetchUserCategories() async {
-    final User? currentUser = FirebaseAuth.instance.currentUser;
-    final userId = currentUser?.uid ?? '';
-    final String url = '$apiBaseUrl/expense-o/fetch_usercategories.php';
+    final String url = '$apiBaseUrl/expense-o/fetch_categories.php';
 
     final Map<String, dynamic> postData = {
-      'access_key': '5505',
-      'get_user_categories': '1',
-      'user_id': userId
+      'get_categories': '1',
+      'access_key': '5505'
     };
     final response = await http.post(Uri.parse(url), body: postData);
 
